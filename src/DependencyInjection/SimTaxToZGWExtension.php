@@ -6,7 +6,7 @@
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  */
 
-namespace CommonGateway\PetStoreBundle\DependencyInjection;
+namespace CommonGateway\SimTaxToZGWBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 /**
  * This class adds dependency injection.
  */
-class PetStoreExtension extends Extension
+class SimTaxToZGWExtension extends Extension
 {
 
 

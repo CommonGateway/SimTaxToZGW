@@ -1,34 +1,34 @@
 <?php
 /**
- * An example handler for the per store.
+ * The handler that deals with incomming simTax files.
  *
  * @author  Conduction.nl <info@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  */
 
-namespace CommonGateway\PetStoreBundle\ActionHandler;
+namespace CommonGateway\SimTaxToZGWBundle\ActionHandler;
 
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\PetStoreBundle\Service\PetStoreService;
+use CommonGateway\PetStoreBundle\Service\SimTaxService;
 
 
-class PetStoreHandler implements ActionHandlerInterface
+class SimTaxHandler implements ActionHandlerInterface
 {
 
     /**
      * The pet store service used by the handler
      *
-     * @var PetStoreService
+     * @var SimTaxService
      */
-    private PetStoreService $petStoreService;
+    private SimTaxService $petStoreService;
 
 
     /**
      * The constructor
      *
-     * @param PetStoreService $petStoreService The pet store service
+     * @param SimTaxService $petStoreService The pet store service
      */
-    public function __construct(PetStoreService $petStoreService)
+    public function __construct(SimTaxService $petStoreService)
     {
         $this->petStoreService = $petStoreService;
 

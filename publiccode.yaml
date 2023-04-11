@@ -1,5 +1,5 @@
 publiccodeYmlVersion: "0.1"
-name: "SimTaxToZGW"
+name: "SimTaxToZGWBundle"
 url: "https://github.com/CommonGateway/SimTaxToZGW"
 releaseDate: "2022-10-01"
 softwareType: addon

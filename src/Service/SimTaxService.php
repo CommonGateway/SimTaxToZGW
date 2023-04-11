@@ -6,12 +6,12 @@
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  */
 
-namespace CommonGateway\PetStoreBundle\Service;
+namespace CommonGateway\SimTaxToZGWBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class PetStoreService
+class SimTaxService
 {
 
     /**
@@ -66,9 +66,9 @@ class PetStoreService
         $this->data          = $data;
         $this->configuration = $configuration;
 
-        $this->logger->debug("PetStoreService -> petStoreHandler()");
+        $this->logger->debug("SimTaxService -> petStoreHandler()");
 
-        return ['response' => 'Hello. Your PetStoreBundle works'];
+        return ['response' => 'Hello. Your SimTaxToZGWBundle works'];
 
     }//end petStoreHandler()
 

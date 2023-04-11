@@ -1,10 +1,10 @@
 <?php
 return (object)[
-    'rootNamespace' => 'CommonGateway\PetStoreBundle',
+    'rootNamespace' => 'CommonGateway\SimTaxToZGWBundle',
     'destDirectory' => 'docs/classes',
     'format' => 'github',
     'classes' => [
-        '\CommonGateway\PetStoreBundle\Service\InstallationService',
-        '\CommonGateway\PetStoreBundle\Service\PetStoreService'
+        '\CommonGateway\SimTaxToZGWBundle\Service\InstallationService',
+        '\CommonGateway\SimTaxToZGWBundle\Service\SimTaxService'
     ],
 ];

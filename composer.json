@@ -1,6 +1,6 @@
 {
-    "name": "common-gateway/pet-store-bundle",
-    "description": "An example package for creating symfony flex bundles as plugins",
+    "name": "common-gateway/SimTaxToZGWBundle",
+    "description": "Deze bundle bevat de benodigde logica (schema's, mappings en code) voor het omzeten van Sim Form belastingen xml naar ZGW berichten. Ten behoeve van het inrichten van belasting aangiften en bezwaren.",
     "type": "symfony-bundle",
     "keywords": [
         "commongateway",
@@ -9,7 +9,9 @@
         "conduction",
         "symfony",
         "common-gateway-plugin",
-        "pet store"
+        "sim",
+        "tax",
+        "zgw"
     ],
     "homepage": "https://commongateway.nl",
     "license": "EUPL-1.2",
@@ -23,7 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "CommonGateway\\PetStoreBundle\\": "src/"
+            "CommonGateway\\SimTaxToZGWBundle\\": "src/"
         }
     }
 }
