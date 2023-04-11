@@ -1,10 +1,9 @@
 publiccodeYmlVersion: "0.1"
-
-name: "PetStoreBundle"
-url: "https://github.com/CommonGateway/PetStoreBundle"
+name: "SimTaxToZGW"
+url: "https://github.com/CommonGateway/SimTaxToZGW"
 releaseDate: "2022-10-01"
-
 softwareType: addon
+
 platforms:
   - web
   
@@ -13,9 +12,8 @@ categories:
   - it-development
   
 developmentStatus: beta
-
 description:
   nl:
-    shortDescription: "Een symfony bundel als voorbeeld."
+    shortDescription: "SimTaxToZGW"
   en:
-    shortDescription: "A symfony bundle as example."
+    shortDescription: "SimTaxToZGW"
