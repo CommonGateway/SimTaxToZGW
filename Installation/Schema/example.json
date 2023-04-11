@@ -1,0 +1,44 @@
+{
+  "$id": "https://example.com/example.schema.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
+  "version": "0.2",
+  "title": "Example",
+  "type": "object",
+  "description": "An example Schema object.",
+  "properties": {
+    "firstName": {
+      "type": "string",
+      "description": "The person's first name.",
+      "example": "John",
+      "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "description": "The person's last name.",
+      "example": "Doe",
+      "required": true
+    },
+    "age": {
+      "type": "integer",
+      "description": "Age in years which must be equal to or greater than zero.",
+      "example": 25,
+      "minimum": 18
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of this Example object"
+    },
+    "relationExample": {
+      "description": "An example of a relation to another Schema",
+      "example": "{ \"postalCode\": \"1234AB\", \"notes\": [\"note1\", \"note2\"] }",
+      "$ref": "https://example.com/schema/relationExample.schema.json"
+    },
+    "relationExamples": {
+      "type": "array",
+      "description": "An example of an array of objects",
+      "items": {
+        "$ref": "https://example.com/schema/relationExample.schema.json"
+      }
+    }
+  }
+}

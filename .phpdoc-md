@@ -1,0 +1,10 @@
+<?php
+return (object)[
+    'rootNamespace' => 'CommonGateway\PetStoreBundle',
+    'destDirectory' => 'docs/classes',
+    'format' => 'github',
+    'classes' => [
+        '\CommonGateway\PetStoreBundle\Service\InstallationService',
+        '\CommonGateway\PetStoreBundle\Service\PetStoreService'
+    ],
+];
