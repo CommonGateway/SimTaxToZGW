@@ -20,17 +20,17 @@ class SimTaxHandler implements ActionHandlerInterface
      *
      * @var SimTaxService
      */
-    private SimTaxService $petStoreService;
+    private SimTaxService $simTaxService;
 
 
     /**
      * The constructor
      *
-     * @param SimTaxService $petStoreService The pet store service
+     * @param SimTaxService $simTaxService The pet store service
      */
-    public function __construct(SimTaxService $petStoreService)
+    public function __construct(SimTaxService $simTaxService)
     {
-        $this->petStoreService = $petStoreService;
+        $this->simTaxService = $simTaxService;
 
     }//end __construct()
 
@@ -66,7 +66,7 @@ class SimTaxHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->petStoreService->petStoreHandler($data, $configuration);
+        return $this->simTaxService->simTaxHandler($data, $configuration);
 
     }//end run()
 

@@ -61,16 +61,16 @@ class SimTaxService
      *
      * @return array A handler must ALWAYS return an array
      */
-    public function petStoreHandler(array $data, array $configuration): array
+    public function simTaxHandler(array $data, array $configuration): array
     {
         $this->data          = $data;
         $this->configuration = $configuration;
 
-        $this->logger->debug("SimTaxService -> petStoreHandler()");
+        $this->logger->debug("SimTaxService -> simTaxHandler()");
 
         return ['response' => 'Hello. Your SimTaxToZGWBundle works'];
 
-    }//end petStoreHandler()
+    }//end simTaxHandler()
 
 
 }//end class

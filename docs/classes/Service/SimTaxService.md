@@ -11,7 +11,7 @@
 | Name | Description |
 |------|-------------|
 |[__construct](#simtaxservice__construct)||
-|[petStoreHandler](#simtaxservicepetstorehandler)|An example handler that is triggered by an action.|
+|[simTaxHandler](#simtaxservicepetstorehandler)|An example handler that is triggered by an action.|
 
 
 
@@ -40,12 +40,12 @@
 <hr />
 
 
-### SimTaxService::petStoreHandler  
+### SimTaxService::simTaxHandler  
 
 **Description**
 
 ```php
-public petStoreHandler (array $data, array $configuration)
+public simTaxHandler (array $data, array $configuration)
 ```
 
 An example handler that is triggered by an action. 
