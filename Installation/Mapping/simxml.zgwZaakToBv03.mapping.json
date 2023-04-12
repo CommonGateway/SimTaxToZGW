@@ -1,0 +1,13 @@
+{
+  "title": "ZgwZaakToBv03",
+  "$id": "https://simxml.nl/mapping/simxml.zgwZaakToBv03.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.4",
+  "passTrough": false,
+  "mapping": {
+    "@xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
+    "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "@xmlns:SOAP-ENV": "http://schemas.xmlsoap.org/soap/envelope/",
+    "SOAP-ENV:Body.OntvangenIntakeAntwoord": ""
+  }
+}

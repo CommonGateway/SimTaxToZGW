@@ -1,0 +1,41 @@
+{
+  "title": "SimxmlToRol",
+  "$id": "https://simxml.nl/mapping/simxml.simxmlToRol.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.8",
+  "passTrough": false,
+  "mapping": {
+    "betrokkeneType": "{% if METADATA.INDIENERSOORT == 'burger' %}natuurlijk_persoon{% elseif METADATA.INDIENERSOORT == 'vestiging' %}vestiging{% endif %}",
+    "roltype": "{{ map('https://zds.nl/mapping/zds.zdsHeeftAlsInitiatorToRolType.mapping.json', _context) | json_encode }}",
+    "roltoelichting": "initiator",
+    "betrokkeneIdentificatie.inpBsn": "{% if METADATA.INDIENERSOORT == 'burger' %}{{METADATA.INDIENER}}{% else %}betrokkeneIdentificatie.inpBsn{% endif %}",
+    "betrokkeneIdentificatie.geslachtsnaam": "{% if METADATA.INDIENERSOORT == 'burger' %}{{ELEMENTEN.ACHTERNAAM}}{% else %}betrokkeneIdentificatie.geslachtsnaam{% endif %}",
+    "betrokkeneIdentificatie.voorvoegselGeslachtsnaam": "betrokkeneIdentificatie.voorvoegselGeslachtsnaam",
+    "betrokkeneIdentificatie.voorletters": "{% if METADATA.INDIENERSOORT == 'burger' %}{{ELEMENTEN.VOORLETTERS}}{% else %}betrokkeneIdentificatie.voorletters{% endif %}",
+    "betrokkeneIdentificatie.voornamen": "betrokkeneIdentificatie.voornamen",
+    "betrokkeneIdentificatie.geslachtaanduiding": "{% if METADATA.INDIENERSOORT == 'burger' %}{{ ELEMENTEN.GESLACHT|default(null) }}{% else %}betrokkeneIdentificatie.geslachtaanduiding{% endif %}",
+    "betrokkeneIdentificatie.geboortedatum": "betrokkeneIdentificatie.geboortedatum",
+    "betrokkeneIdentificatie.verblijfsadres.wplWoonplaatsNaam": "ELEMENTEN.WOONPLAATS",
+    "betrokkeneIdentificatie.verblijfsadres.gorOpenbareRuimteNaam": "ELEMENTEN.STRAATNAAM",
+    "betrokkeneIdentificatie.verblijfsadres.aoaPostcode": "ELEMENTEN.POSTCODE",
+    "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummer": "ELEMENTEN.HUISNUMMER",
+    "betrokkeneIdentificatie.verblijfsadres.aoaHuisletter": "betrokkeneIdentificatie.verblijfsadres.aoaHuisletter",
+    "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummertoevoeging": "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummertoevoeging",
+    "betrokkeneIdentificatie.vestigingsNummer": "{% if METADATA.INDIENERSOORT == 'vestiging' %}{{METADATA.INDIENER}}{% else %}betrokkeneIdentificatie.vestigingsNummer{% endif %}",
+    "betrokkeneIdentificatie.handelsnaam": "{% if METADATA.INDIENERSOORT == 'vestiging' %}{{METADATA.INDIENER}}{% else %}betrokkeneIdentificatie.handelsnaam{% endif %}"
+  },
+  "cast": {
+    "roltype": "jsonToArray",
+    "betrokkeneIdentificatie.inpBsn": "keyCantBeValue",
+    "betrokkeneIdentificatie.geboortedatum": "keyCantBeValue",
+    "betrokkeneIdentificatie.geslachtsnaam": "keyCantBeValue",
+    "betrokkeneIdentificatie.voornamen": "keyCantBeValue",
+    "betrokkeneIdentificatie.voorletters": "keyCantBeValue",
+    "betrokkeneIdentificatie.verblijfsadres.aoaHuisletter": "keyCantBeValue",
+    "betrokkeneIdentificatie.voorvoegselGeslachtsnaam": "keyCantBeValue",
+    "betrokkeneIdentificatie.geslachtaanduiding": "keyCantBeValue",
+    "betrokkeneIdentificatie.handelsnaam": "keyCantBeValue",
+    "betrokkeneIdentificatie.vestigingsNummer": "keyCantBeValue",
+    "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummertoevoeging": "keyCantBeValue"
+  }
+}
