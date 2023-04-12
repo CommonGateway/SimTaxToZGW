@@ -23,11 +23,12 @@ use function PHPUnit\Framework\countOf;
  */
 class SimXmlToZgwService
 {
+
     /**
      * @var EntityManagerInterface
      */
     private EntityManagerInterface $entityManager;
-    
+
     /**
      * @var GatewayResourceService The Gateway Resource Service.
      */
@@ -63,11 +64,12 @@ class SimXmlToZgwService
      */
     private array $configuration;
 
+
     /**
-     * @param EntityManagerInterface   $entityManager  The Entity Manager
+     * @param EntityManagerInterface   $entityManager   The Entity Manager
      * @param GatewayResourceService   $resourceService The GatewayResourceService.
-     * @param MappingService           $mappingService The MappingService
-     * @param CacheService             $cacheService   The CacheService
+     * @param MappingService           $mappingService  The MappingService
+     * @param CacheService             $cacheService    The CacheService
      * @param EventDispatcherInterface $eventDispatcher The event dispatcher
      */
     public function __construct(
@@ -78,13 +80,15 @@ class SimXmlToZgwService
         LoggerInterface $actionLogger,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->entityManager = $entityManager;
+        $this->entityManager   = $entityManager;
         $this->resourceService = $resourceService;
-        $this->mappingService = $mappingService;
-        $this->cacheService = $cacheService;
-        $this->logger = $actionLogger;
+        $this->mappingService  = $mappingService;
+        $this->cacheService    = $cacheService;
+        $this->logger          = $actionLogger;
         $this->eventDispatcher = $eventDispatcher;
+
     }//end __construct()
+
 
     /**
      * Creates a response based on content.
@@ -97,11 +101,13 @@ class SimXmlToZgwService
     public function createResponse(array $content, int $status): Response
     {
         $this->logger->debug('Creating XML response');
-        $xmlEncoder = new XmlEncoder(['xml_root_node_name' => 'SOAP-ENV:Envelope']);
+        $xmlEncoder    = new XmlEncoder(['xml_root_node_name' => 'SOAP-ENV:Envelope']);
         $contentString = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
 
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
+
     }//end createResponse()
+
 
     /**
      * Connects Eigenschappen to ZaakType if eigenschap does not exist yet, or connect existing Eigenschap to ZaakEigenschap.
@@ -115,7 +121,7 @@ class SimXmlToZgwService
     {
         $this->logger->info('Trying to connect case type properties to existing properties');
 
-        $eigenschapEntity = $this->resourceService->getSchema(
+        $eigenschapEntity  = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/ztc.eigenschap.schema.json',
             'common-gateway/sim-tax-to-zgw-bundle'
         );
@@ -129,7 +135,7 @@ class SimXmlToZgwService
             } else {
                 $this->logger->debug('No existing property found, creating new property');
 
-                $eigenschapObject = new ObjectEntity($eigenschapEntity);
+                $eigenschapObject                     = new ObjectEntity($eigenschapEntity);
                 $eigenschap['eigenschap']['zaaktype'] = $zaakType->getSelf();
                 $eigenschapObject->hydrate($eigenschap['eigenschap']);
 
@@ -147,7 +153,9 @@ class SimXmlToZgwService
         $this->entityManager->flush();
 
         return $zaakArray;
+
     }//end connectEigenschappen()
+
 
     /**
      * Connects RoleTypes to ZaakType if RoleType does not exist yet, or connect existing RoleType to Role.
@@ -160,7 +168,7 @@ class SimXmlToZgwService
     public function connectRolTypes(array $zaakArray, ObjectEntity $zaakType): array
     {
         $this->logger->info('Trying to connect roles to existing role types');
-        $rolTypeEntity = $this->resourceService->getSchema(
+        $rolTypeEntity  = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json',
             'common-gateway/sim-tax-to-zgw-bundle'
         );
@@ -171,10 +179,10 @@ class SimXmlToZgwService
             if ($rollen !== []) {
                 $this->logger->debug('Role type has been found, connecting to existing role type');
                 $zaakArray['rollen'][$key]['roltype'] = $rollen[0]['_self']['id'];
-                $rolType = $this->entityManager->find('App:ObjectEntity', $rollen[0]['_self']['id']);
+                $rolType                              = $this->entityManager->find('App:ObjectEntity', $rollen[0]['_self']['id']);
             } else {
                 $this->logger->debug('No existing role type has been found, creating new role type');
-                $rolType = new ObjectEntity($rolTypeEntity);
+                $rolType                     = new ObjectEntity($rolTypeEntity);
                 $role['roltype']['zaaktype'] = $zaakType->getSelf();
                 $rolType->hydrate($role['roltype']);
 
@@ -193,12 +201,14 @@ class SimXmlToZgwService
         $this->entityManager->flush();
 
         return $zaakArray;
+
     }//end connectRolTypes()
+
 
     /**
      * Connects ZaakInfromatieObjecten ... @TODO
      *
-     * @param array        $zaakArray The mapped zaak
+     * @param array $zaakArray The mapped zaak
      *
      * @return array
      */
@@ -223,7 +233,7 @@ class SimXmlToZgwService
             'common-gateway/sim-tax-to-zgw-bundle'
         );
 
-        $zaken = $this->cacheService->searchObjects(null, ['identificatie' => $zaakArray['identificatie']], [$zaakEntity->getId()->toString()])['results'];
+        $zaken                  = $this->cacheService->searchObjects(null, ['identificatie' => $zaakArray['identificatie']], [$zaakEntity->getId()->toString()])['results'];
         $zaakinformatieobjecten = $zaak->getValue('zaakinformatieobjecten');
 
         foreach ($zaakinformatieobjecten as $key => $zaakInformatieObject) {
@@ -233,7 +243,7 @@ class SimXmlToZgwService
                 $this->logger->debug('Populating document with identification'.$zaakInformatieObject->getValue('informatieobject')->getValue('identificatie'));
 
                 $informatieobject = $zaakInformatieObject->getValue('informatieobject');
-                $informatieobject->setValue('identificatie', $zaak->getValue('identificatie') . '-' . $informatieobject->getValue('identificatie'));
+                $informatieobject->setValue('identificatie', $zaak->getValue('identificatie').'-'.$informatieobject->getValue('identificatie'));
                 $this->entityManager->persist($informatieobject);
 
                 $this->logger->info('Connected document to zaak');
@@ -243,7 +253,6 @@ class SimXmlToZgwService
                 $this->entityManager->flush();
 
                 $this->data['documents'][] = $zaakInformatieObject->toArray();
-
             } else {
                 $this->logger->warning('The case with id '.$zaakArray['informatieobject']['identificatie'].' does not exist');
                 $data['response'] = $this->createResponse(['Error' => 'The case with id '.$zaakArray['informatieobject']['identificatie'].' does not exist'], 400);
@@ -251,7 +260,8 @@ class SimXmlToZgwService
         }//end foreach
 
         return $zaakArray;
-    }//end connectRolTypes()
+
+    }//end connectZaakInformatieObjecten()
 
 
     /**
@@ -269,11 +279,11 @@ class SimXmlToZgwService
             'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json',
             'common-gateway/sim-tax-to-zgw-bundle'
         );
-        $zaaktypes = $this->cacheService->searchObjects(null, ['identificatie' => $zaakArray['zaaktype']['identificatie']], [$zaakTypeEntity->getId()->toString()])['results'];
+        $zaaktypes      = $this->cacheService->searchObjects(null, ['identificatie' => $zaakArray['zaaktype']['identificatie']], [$zaakTypeEntity->getId()->toString()])['results'];
         if (count($zaaktypes) > 0) {
             $this->logger->debug('Case type found, connecting case to case type');
 
-            $zaaktype = $this->entityManager->find('App:ObjectEntity', $zaaktypes[0]['_self']['id']);
+            $zaaktype              = $this->entityManager->find('App:ObjectEntity', $zaaktypes[0]['_self']['id']);
             $zaakArray['zaaktype'] = $zaaktype->getId()->toString();
         } else {
             $this->logger->debug('No existing case type found, creating new case type');
@@ -293,7 +303,9 @@ class SimXmlToZgwService
         $zaakArray = $this->connectRolTypes($zaakArray, $zaaktype);
 
         return $zaakArray;
+
     }//end convertZaakType()
+
 
     /**
      * Unescapes dots in eigenschap-names and definition.
@@ -304,15 +316,17 @@ class SimXmlToZgwService
      */
     public function unescapeEigenschappen(array $zaakArray): array
     {
-        foreach($zaakArray['eigenschappen'] as $key => $eigenschap) {
-            $eigenschap['naam'] = str_replace(['&#46', '&amp;#46;', '&amp;amp;#46;'], ['.', '.', '.'], $eigenschap['naam']);
-            $eigenschap['eigenschap']['naam'] = str_replace(['&#46', '&amp;#46;', '&amp;amp;#46;'], ['.', '.', '.'], $eigenschap['eigenschap']['naam']);
+        foreach ($zaakArray['eigenschappen'] as $key => $eigenschap) {
+            $eigenschap['naam']                    = str_replace(['&#46', '&amp;#46;', '&amp;amp;#46;'], ['.', '.', '.'], $eigenschap['naam']);
+            $eigenschap['eigenschap']['naam']      = str_replace(['&#46', '&amp;#46;', '&amp;amp;#46;'], ['.', '.', '.'], $eigenschap['eigenschap']['naam']);
             $eigenschap['eigenschap']['definitie'] = str_replace(['&#46', '&amp;#46;', '&amp;amp;#46;'], ['.', '.', '.'], $eigenschap['eigenschap']['definitie']);
-            $zaakArray['eigenschappen'][$key] = $eigenschap;
+            $zaakArray['eigenschappen'][$key]      = $eigenschap;
         }
 
         return $zaakArray;
+
     }//end unescapeEigenschappen()
+
 
     /**
      * Receives a case and maps it to a ZGW case.
@@ -326,16 +340,16 @@ class SimXmlToZgwService
     {
         $this->logger->info('Populate case');
         $this->configuration = $config;
-        $this->data = $data;
+        $this->data          = $data;
 
-        $elementen = new Dot($this->data['body']['SOAP-ENV:Body']['ns2:OntvangenIntakeNotificatie']['Body']['SIMXML']['ELEMENTEN']);
+        $elementen                                                                                            = new Dot($this->data['body']['SOAP-ENV:Body']['ns2:OntvangenIntakeNotificatie']['Body']['SIMXML']['ELEMENTEN']);
         $this->data['body']['SOAP-ENV:Body']['ns2:OntvangenIntakeNotificatie']['Body']['SIMXML']['ELEMENTEN'] = $elementen->flatten();
 
         $zaakEntity = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
             'common-gateway/sim-tax-to-zgw-bundle'
         );
-        $mapping = $this->resourceService->getMapping(
+        $mapping    = $this->resourceService->getMapping(
             'https://simxml.nl/mapping/simxml.simxmlZaakToZgwZaak.mapping.json',
             'common-gateway/sim-tax-to-zgw-bundle'
         );
@@ -355,10 +369,10 @@ class SimXmlToZgwService
             $this->entityManager->persist($zaak);
             $this->entityManager->flush();
             $this->data['object'] = $zaak->toArray();
-            $zaakArray = $this->connectZaakInformatieObjecten($zaakArray, $zaak);
+            $zaakArray            = $this->connectZaakInformatieObjecten($zaakArray, $zaak);
 
             $this->logger->info('Created case with identifier '.$zaakArray['identificatie']);
-            $mappingOut = $this->resourceService->getMapping(
+            $mappingOut             = $this->resourceService->getMapping(
                 'https://simxml.nl/mapping/simxml.zgwZaakToBv03.mapping.json',
                 'common-gateway/sim-tax-to-zgw-bundle'
             );
@@ -369,5 +383,8 @@ class SimXmlToZgwService
         }//end if
 
         return $this->data;
+
     }//end zaakActionHandler()
-}
+
+
+}//end class
