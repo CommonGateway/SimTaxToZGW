@@ -16,7 +16,7 @@ class SimTaxHandler implements ActionHandlerInterface
 {
 
     /**
-     * The pet store service used by the handler
+     * The sim tax service used by the handler
      *
      * @var SimTaxService
      */
@@ -26,7 +26,7 @@ class SimTaxHandler implements ActionHandlerInterface
     /**
      * The constructor
      *
-     * @param SimTaxService $simTaxService The pet store service
+     * @param SimTaxService $simTaxService The sim tax service
      */
     public function __construct(SimTaxService $simTaxService)
     {

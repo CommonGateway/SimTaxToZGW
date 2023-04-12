@@ -1,0 +1,11 @@
+{
+  "title": "sim-xml Endpoint",
+  "$id": "https://simxml.nl/endpoint/simxml.endpoint.json",
+  "$schema": "https://json-schema.org/draft/2020-12/action",
+  "version": "0.0.1",
+  "path": "simxml",
+  "throws": [
+    "xml.inbound"
+  ],
+  "methods": []
+}
