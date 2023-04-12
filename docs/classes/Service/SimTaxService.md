@@ -1,0 +1,70 @@
+# CommonGateway\SimTaxToZGWBundle\Service\SimTaxService  
+
+
+
+
+
+
+
+## Methods
+
+| Name | Description |
+|------|-------------|
+|[__construct](#simtaxservice__construct)||
+|[petStoreHandler](#simtaxservicepetstorehandler)|An example handler that is triggered by an action.|
+
+
+
+
+### SimTaxService::__construct  
+
+**Description**
+
+```php
+ __construct (void)
+```
+
+ 
+
+ 
+
+**Parameters**
+
+`This function has no parameters.`
+
+**Return Values**
+
+`void`
+
+
+<hr />
+
+
+### SimTaxService::petStoreHandler  
+
+**Description**
+
+```php
+public petStoreHandler (array $data, array $configuration)
+```
+
+An example handler that is triggered by an action. 
+
+ 
+
+**Parameters**
+
+* `(array) $data`
+: The data array  
+* `(array) $configuration`
+: The configuration array  
+
+**Return Values**
+
+`array`
+
+> A handler must ALWAYS return an array
+
+
+<hr />
+

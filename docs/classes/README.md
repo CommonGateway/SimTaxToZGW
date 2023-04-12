@@ -1,4 +1,4 @@
-# CommonGateway\PetStoreBundle
+# CommonGateway\SimTaxToZGWBundle
 
-*   [Service\InstallationService](Service/InstallationService.md)
-*   [Service\PetStoreService](Service/PetStoreService.md)
+* [Service\InstallationService](Service/InstallationService.md) 
+* [Service\SimTaxService](Service/SimTaxService.md) 
