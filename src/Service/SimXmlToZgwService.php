@@ -1,6 +1,6 @@
 <?php
 
-namespace CommonGateway\NaamgebruikVrijBRPBundle\Service;
+namespace CommonGateway\SimTaxToZGWBundle\Service;
 
 use Adbar\Dot;
 use App\Entity\Entity;

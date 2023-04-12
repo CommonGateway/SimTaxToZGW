@@ -1,10 +1,10 @@
 <?php
 
-namespace CommonGateway\NaamgebruikVrijBRPBundle\ActionHandler;
+namespace CommonGateway\SimTaxToZGWBundle\ActionHandler;
 
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\NaamgebruikVrijBRPBundle\Service\SimXmlToZgwService;
-use CommonGateway\NaamgebruikVrijBRPBundle\Service\ZdsToZgwService;
+use CommonGateway\SimTaxToZGWBundle\Service\SimXmlToZgwService;
+use CommonGateway\SimTaxToZGWBundle\Service\ZdsToZgwService;
 
 /**
  * Convert Sim Xml to a ZGW Zaak.
