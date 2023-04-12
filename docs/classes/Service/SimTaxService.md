@@ -11,7 +11,7 @@
 | Name | Description |
 |------|-------------|
 |[__construct](#simtaxservice__construct)||
-|[simTaxHandler](#simtaxservicepetstorehandler)|An example handler that is triggered by an action.|
+|[simTaxHandler](#simtaxservicesimtaxhandler)|An example handler that is triggered by an action.|
 
 
 
