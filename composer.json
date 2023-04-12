@@ -1,5 +1,5 @@
 {
-    "name": "common-gateway/SimTaxToZGWBundle",
+    "name": "common-gateway/sim-tax-to-zgw-bundle",
     "description": "Deze bundle bevat de benodigde logica (schema's, mappings en code) voor het omzeten van Sim Form belastingen xml naar ZGW berichten. Ten behoeve van het inrichten van belasting aangiften en bezwaren.",
     "type": "symfony-bundle",
     "keywords": [
