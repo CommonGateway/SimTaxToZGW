@@ -9,7 +9,7 @@
 namespace CommonGateway\SimTaxToZGWBundle\ActionHandler;
 
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\PetStoreBundle\Service\SimTaxService;
+use CommonGateway\SimTaxToZGWBundle\Service\SimTaxService;
 
 
 class SimTaxHandler implements ActionHandlerInterface
@@ -43,9 +43,9 @@ class SimTaxHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://example.com/ActionHandler/PetStoreHandler.ActionHandler.json',
+            '$id'         => 'https://example.com/ActionHandler/SimTaxToZGWHandler.ActionHandler.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
-            'title'       => 'PetStore ActionHandler',
+            'title'       => 'SimTaxToZGW ActionHandler',
             'description' => 'This handler returns a welcoming string',
             'required'    => [],
             'properties'  => [],
