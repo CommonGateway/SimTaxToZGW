@@ -1,19 +1,32 @@
-# CommonGateway\SimTaxToZGWBundle\Service\SimTaxService
+# CommonGateway\SimTaxToZGWBundle\Service\SimTaxService  
+
+
+
+
+
+
 
 ## Methods
 
 | Name | Description |
 |------|-------------|
-|[\_\_construct](#simtaxservice__construct)||
+|[__construct](#simtaxservice__construct)||
 |[simTaxHandler](#simtaxservicesimtaxhandler)|An example handler that is triggered by an action.|
 
-### SimTaxService::\_\_construct
+
+
+
+### SimTaxService::__construct  
 
 **Description**
 
 ```php
  __construct (void)
 ```
+
+ 
+
+ 
 
 **Parameters**
 
@@ -23,9 +36,11 @@
 
 `void`
 
+
 <hr />
 
-### SimTaxService::simTaxHandler
+
+### SimTaxService::simTaxHandler  
 
 **Description**
 
@@ -33,14 +48,16 @@
 public simTaxHandler (array $data, array $configuration)
 ```
 
-An example handler that is triggered by an action.
+An example handler that is triggered by an action. 
+
+ 
 
 **Parameters**
 
-*   `(array) $data`
-    : The data array
-*   `(array) $configuration`
-    : The configuration array
+* `(array) $data`
+: The data array  
+* `(array) $configuration`
+: The configuration array  
 
 **Return Values**
 
@@ -48,4 +65,6 @@ An example handler that is triggered by an action.
 
 > A handler must ALWAYS return an array
 
+
 <hr />
+
