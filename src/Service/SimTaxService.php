@@ -34,7 +34,7 @@ class SimTaxService
      * @var GatewayResourceService
      */
     private GatewayResourceService $resourceService;
-    
+
     /**
      * @var CacheService
      */
@@ -78,8 +78,8 @@ class SimTaxService
         $this->entityManager   = $entityManager;
         $this->logger          = $pluginLogger;
 
-        $this->configuration   = [];
-        $this->data            = [];
+        $this->configuration = [];
+        $this->data          = [];
 
     }//end __construct()
 
@@ -143,7 +143,7 @@ class SimTaxService
             [],
             ['https://openbelasting.nl/schemas/openblasting.aanslagbiljet.schema.json']
         )['results'];
-        
+
         return ['Lv01-BLJ'];
 
     }//end getAanslagen()
