@@ -8,6 +8,9 @@
 
 namespace CommonGateway\SimTaxToZGWBundle\Service;
 
+use Adbar\Dot;
+use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -23,6 +26,16 @@ class SimTaxService
      * @var array
      */
     private array $data;
+    
+    /**
+     * @var GatewayResourceService
+     */
+    private GatewayResourceService $resourceService;
+    
+    /**
+     * @var MappingService
+     */
+    private MappingService $mappingService;
 
     /**
      * @var EntityManagerInterface
@@ -38,15 +51,22 @@ class SimTaxService
 
 
     /**
+     * @param GatewayResourceService $resourceService The Gateway Resource Service.
+     * @param MappingService         $mappingService  The Mapping Service
      * @param EntityManagerInterface $entityManager The Entity Manager.
      * @param LoggerInterface        $pluginLogger  The plugin version of the logger interface.
      */
     public function __construct(
+        GatewayResourceService $resourceService,
+        MappingService $mappingService,
         EntityManagerInterface $entityManager,
         LoggerInterface $pluginLogger
     ) {
+        $this->resourceService = $resourceService;
+        $this->mappingService = $mappingService;
         $this->entityManager = $entityManager;
         $this->logger        = $pluginLogger;
+        
         $this->configuration = [];
         $this->data          = [];
 
@@ -67,10 +87,35 @@ class SimTaxService
         $this->configuration = $configuration;
 
         $this->logger->debug("SimTaxService -> simTaxHandler()");
+        
+        $dotBody = new Dot($this->data['body']);
+        if ($dotBody->has('SOAP-ENV:Body.ns2:vraagBericht') === false) {
+            $this->logger->error('No vraagBericht found in xml body, returning bad request error');
+            return ['response' => $this->createResponse(['Error' => 'No vraagBericht found in xml body'], 400)];
+        }
+        
+        $vraagBericht = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
 
-        return ['response' => 'Hello. Your SimTaxToZGWBundle works'];
+        return ['response' => $this->createResponse(['Hello. Your SimTaxToZGWBundle works. We should do some mapping here?'], 200)];
 
     }//end simTaxHandler()
+    
+    /**
+     * Creates a response based on content.
+     *
+     * @param array $content The content to incorporate in the response
+     * @param int   $status  The status code of the response
+     *
+     * @return Response
+     */
+    public function createResponse(array $content, int $status): Response
+    {
+        $this->logger->debug('Creating XML response');
+        $xmlEncoder = new XmlEncoder(['xml_root_node_name' => 'SOAP-ENV:Envelope']);
+        $contentString = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
+        
+        return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
+    }//end createResponse()
 
 
 }//end class
