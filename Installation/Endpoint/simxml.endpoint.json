@@ -1,6 +1,6 @@
 {
   "title": "sim-xml Endpoint",
-  "$id": "https://simxml.nl/endpoint/simxml.endpoint.json",
+  "$id": "https://dowr.simxml.nl/endpoint/simxml.endpoint.json",
   "$schema": "https://docs.commongateway.nl/schemas/Endpoint.schema.json",
   "version": "0.0.1",
   "path": "simxml",

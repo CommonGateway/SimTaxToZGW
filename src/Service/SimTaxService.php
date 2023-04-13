@@ -8,7 +8,6 @@
 
 namespace CommonGateway\SimTaxToZGWBundle\Service;
 
-use Adbar\Dot;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\MappingService;
@@ -56,6 +55,28 @@ class SimTaxService
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
+    
+    /**
+     * The plugin name of this plugin.
+     */
+    private const PLUGIN_NAME = 'common-gateway/sim-tax-to-zgw-bundle';
+    
+    /**
+     * The mapping references used in this service.
+     */
+    private const MAPPING_REFS = [
+        "GetAanslagen" => "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+        "GetAanslag" => "https://dowr.simxml.nl/mapping/simxml.get.aanslag.mapping.json",
+        "CreateBezwaar" => "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.mapping.json"
+    ];
+    
+    /**
+     * The schema references used in this service.
+     */
+    private const SCHEMA_REFS = [
+        "Aanslagbiljet" => "https://openbelasting.nl/schemas/openblasting.aanslagbiljet.schema.json",
+        "BezwaarAanvraag" => "https://openbelasting.nl/schemas/openblasting.bezwaaraanvraag.schema.json"
+    ];
 
 
     /**
@@ -98,33 +119,33 @@ class SimTaxService
         $this->configuration = $configuration;
 
         $this->logger->debug("SimTaxService -> simTaxHandler()");
-
-        $dotBody = new Dot($this->data['body']);
-        if ($dotBody->has('SOAP-ENV:Body.ns2:vraagBericht.ns1:stuurgegevens') === false) {
+        
+        if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false) {
             $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
             return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
         }
 
-        $vraagBericht  = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
+        $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'];
         $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
+        
         $this->logger->debug("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
         case 'Lv01-BLJ':
-            $responseContent = $this->getAanslagen($vraagBericht);
+            $response = $this->getAanslagen($vraagBericht);
             break;
         case 'Lv01-OPO':
-            $responseContent = $this->getAanslag($vraagBericht);
+            $response = $this->getAanslag($vraagBericht);
             break;
         case 'Lk01-BGB':
-            $responseContent = $this->createBezwaar($vraagBericht);
+            $response = $this->createBezwaar($vraagBericht);
             break;
         default:
             $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
-            return ['response' => $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400)];
+            $response = $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400);
         }
 
-        return ['response' => $this->createResponse(($responseContent ?? ['Nothing to return']), 200)];
+        return ['response' => $response];
 
     }//end simTaxHandler()
 
@@ -134,17 +155,26 @@ class SimTaxService
      *
      * @param array $vraagBericht The vraagBericht content from the body of the current request.
      *
-     * @return array
+     * @return Response
      */
-    public function getAanslagen(array $vraagBericht): array
+    public function getAanslagen(array $vraagBericht): Response
     {
-        $aanslagen = $this->cacheService->searchObjects(
-            null,
-            [],
-            ['https://openbelasting.nl/schemas/openblasting.aanslagbiljet.schema.json']
-        )['results'];
+        $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['GetAanslagen'], $this::PLUGIN_NAME);
+        if ($mapping === null) {
+            return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslagen']}."], 501);
+        }
+        
+        $filter = [];
+        if (isset($vraagBericht['ns2:body']['ns2:ABT']['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $bsnNummer = $vraagBericht['ns2:body']['ns2:ABT']['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
+            $filter['belastingplichtige.burgerservicenummer'] = $bsnNummer;
+        }
+        
+        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
 
-        return ['Lv01-BLJ'];
+        $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
+        
+        return $this->createResponse($responseContext, 200);
 
     }//end getAanslagen()
 
@@ -154,28 +184,46 @@ class SimTaxService
      *
      * @param array $vraagBericht The vraagBericht content from the body of the current request.
      *
-     * @return array
+     * @return Response
      */
-    public function getAanslag(array $vraagBericht): array
+    public function getAanslag(array $vraagBericht): Response
     {
-        // todo
-        return ['Lv01-OPO'];
+        $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['GetAanslag'], $this::PLUGIN_NAME);
+        if ($mapping === null) {
+            return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslag']}."], 501);
+        }
+    
+        // todo: maybe just use searcObjects instead?
+        $aanslag = $this->cacheService->getObject('id-placeholder');
+    
+        $responseContext = $this->mappingService->mapping($mapping, $aanslag);
+        
+        return $this->createResponse($responseContext, 200);
 
     }//end getAanslag()
 
 
     /**
      * Create a bezwaar object based on the input.
-     * This will actually only map the input and throw an event for the OpenBelastingenBundle to handle.
      *
      * @param array $vraagBericht The vraagBericht content from the body of the current request.
      *
-     * @return array
+     * @return Response
      */
-    public function createBezwaar(array $vraagBericht): array
+    public function createBezwaar(array $vraagBericht): Response
     {
+        $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['CreateBezwaar'], $this::PLUGIN_NAME);
+        if ($mapping === null) {
+            return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['CreateBezwaar']}."], 501);
+        }
+    
+        $bezwaarSchema = $this->resourceService->getSchema($this::SCHEMA_REFS['BezwaarAanvraag'], $this::PLUGIN_NAME);
+        if ($bezwaarSchema === null) {
+            return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
+        }
+        
         // todo
-        return ['Lk01-BGB'];
+        return $this->createResponse(['Lk01-BGB'], 201);
 
     }//end createBezwaar()
 

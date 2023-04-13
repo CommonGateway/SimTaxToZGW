@@ -1,0 +1,15 @@
+{
+  "title": "GetAanslagen",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.berichtsoort": "La01",
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.entiteittype": "BLJ",
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.sectormodel": "WOZ",
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieStUF": "0204",
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieSectormodel": "0204",
+    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "results"
+  }
+}

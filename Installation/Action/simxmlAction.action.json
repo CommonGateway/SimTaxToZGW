@@ -1,6 +1,6 @@
 {
   "title": "simxmlAction",
-  "$id": "https://simxml.nl/action/simxmlAction.action.json",
+  "$id": "https://dowr.simxml.nl/action/simxmlAction.action.json",
   "$schema": "https://docs.commongateway.nl/schemas/Action.schema.json",
   "version": "0.0.1",
   "listens": [
