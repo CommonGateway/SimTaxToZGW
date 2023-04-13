@@ -91,16 +91,82 @@ class SimTaxService
         $this->logger->debug("SimTaxService -> simTaxHandler()");
 
         $dotBody = new Dot($this->data['body']);
-        if ($dotBody->has('SOAP-ENV:Body.ns2:vraagBericht') === false) {
-            $this->logger->error('No vraagBericht found in xml body, returning bad request error');
-            return ['response' => $this->createResponse(['Error' => 'No vraagBericht found in xml body'], 400)];
+        if ($dotBody->has('SOAP-ENV:Body.ns2:vraagBericht.ns1:stuurgegevens') === false) {
+            $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
+            return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
         }
 
         $vraagBericht = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
+        $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
+        $this->logger->debug("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
-        return ['response' => $this->createResponse(['Hello. Your SimTaxToZGWBundle works. We should do some mapping here?'], 200)];
-
+        switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
+            case 'Lv01-BLJ':
+                $responseContent = $this->getAanslagen($vraagBericht);
+                break;
+            case 'Lv01-OPO':
+                $responseContent = $this->getAanslag($vraagBericht);
+                break;
+            case 'Lk01-BGB':
+                $responseContent = $this->createBezwaar($vraagBericht);
+                break;
+            default:
+                $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
+                return ['response' => $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400)];
+        }
+    
+        return ['response' => $this->createResponse($responseContent ?? ['Nothing to return'], 200)];
+        
     }//end simTaxHandler()
+    
+    
+    /**
+     * Get aanslagen objects based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array
+     */
+    public function getAanslagen(array $vraagBericht): array
+    {
+        //todo
+        
+        return ['Lv01-BLJ'];
+        
+    }//end getAanslagen
+    
+    
+    /**
+     * Get a single aanslag object based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array
+     */
+    public function getAanslag(array $vraagBericht): array
+    {
+        //todo
+        
+        return ['Lv01-OPO'];
+        
+    }//end getAanslag()
+    
+    
+    /**
+     * Create a bezwaar object based on the input.
+     * This will actually only map the input and throw an event for the OpenBelastingenBundle to handle.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array
+     */
+    public function createBezwaar(array $vraagBericht): array
+    {
+        //todo
+        
+        return ['Lk01-BGB'];
+        
+    }//end getAanslag()
 
 
     /**
