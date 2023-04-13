@@ -8,5 +8,6 @@
   "throws": [
     "xml.inbound"
   ],
-  "methods": []
+  "methods": [],
+  "defaultContentType": "text/xml"
 }
