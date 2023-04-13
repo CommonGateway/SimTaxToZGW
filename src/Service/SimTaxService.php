@@ -26,12 +26,12 @@ class SimTaxService
      * @var array
      */
     private array $data;
-    
+
     /**
      * @var GatewayResourceService
      */
     private GatewayResourceService $resourceService;
-    
+
     /**
      * @var MappingService
      */
@@ -53,8 +53,8 @@ class SimTaxService
     /**
      * @param GatewayResourceService $resourceService The Gateway Resource Service.
      * @param MappingService         $mappingService  The Mapping Service
-     * @param EntityManagerInterface $entityManager The Entity Manager.
-     * @param LoggerInterface        $pluginLogger  The plugin version of the logger interface.
+     * @param EntityManagerInterface $entityManager   The Entity Manager.
+     * @param LoggerInterface        $pluginLogger    The plugin version of the logger interface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
@@ -63,10 +63,10 @@ class SimTaxService
         LoggerInterface $pluginLogger
     ) {
         $this->resourceService = $resourceService;
-        $this->mappingService = $mappingService;
-        $this->entityManager = $entityManager;
-        $this->logger        = $pluginLogger;
-        
+        $this->mappingService  = $mappingService;
+        $this->entityManager   = $entityManager;
+        $this->logger          = $pluginLogger;
+
         $this->configuration = [];
         $this->data          = [];
 
@@ -87,19 +87,20 @@ class SimTaxService
         $this->configuration = $configuration;
 
         $this->logger->debug("SimTaxService -> simTaxHandler()");
-        
+
         $dotBody = new Dot($this->data['body']);
         if ($dotBody->has('SOAP-ENV:Body.ns2:vraagBericht') === false) {
             $this->logger->error('No vraagBericht found in xml body, returning bad request error');
             return ['response' => $this->createResponse(['Error' => 'No vraagBericht found in xml body'], 400)];
         }
-        
+
         $vraagBericht = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
 
         return ['response' => $this->createResponse(['Hello. Your SimTaxToZGWBundle works. We should do some mapping here?'], 200)];
 
     }//end simTaxHandler()
-    
+
+
     /**
      * Creates a response based on content.
      *
@@ -111,10 +112,11 @@ class SimTaxService
     public function createResponse(array $content, int $status): Response
     {
         $this->logger->debug('Creating XML response');
-        $xmlEncoder = new XmlEncoder(['xml_root_node_name' => 'SOAP-ENV:Envelope']);
+        $xmlEncoder    = new XmlEncoder(['xml_root_node_name' => 'SOAP-ENV:Envelope']);
         $contentString = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
-        
+
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
+
     }//end createResponse()
 
 
