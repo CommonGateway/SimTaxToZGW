@@ -13,6 +13,7 @@ use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class SimTaxService
