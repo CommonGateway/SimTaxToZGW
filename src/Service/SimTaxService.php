@@ -96,30 +96,30 @@ class SimTaxService
             return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
         }
 
-        $vraagBericht = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
+        $vraagBericht  = $dotBody->get('SOAP-ENV:Body.ns2:vraagBericht');
         $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
         $this->logger->debug("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
-            case 'Lv01-BLJ':
-                $responseContent = $this->getAanslagen($vraagBericht);
-                break;
-            case 'Lv01-OPO':
-                $responseContent = $this->getAanslag($vraagBericht);
-                break;
-            case 'Lk01-BGB':
-                $responseContent = $this->createBezwaar($vraagBericht);
-                break;
-            default:
-                $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
-                return ['response' => $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400)];
+        case 'Lv01-BLJ':
+            $responseContent = $this->getAanslagen($vraagBericht);
+            break;
+        case 'Lv01-OPO':
+            $responseContent = $this->getAanslag($vraagBericht);
+            break;
+        case 'Lk01-BGB':
+            $responseContent = $this->createBezwaar($vraagBericht);
+            break;
+        default:
+            $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
+            return ['response' => $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400)];
         }
-    
-        return ['response' => $this->createResponse($responseContent ?? ['Nothing to return'], 200)];
-        
+
+        return ['response' => $this->createResponse(($responseContent ?? ['Nothing to return']), 200)];
+
     }//end simTaxHandler()
-    
-    
+
+
     /**
      * Get aanslagen objects based on the input.
      *
@@ -129,13 +129,12 @@ class SimTaxService
      */
     public function getAanslagen(array $vraagBericht): array
     {
-        //todo
-        
+        // todo
         return ['Lv01-BLJ'];
-        
-    }//end getAanslagen
-    
-    
+
+    }//end getAanslagen()
+
+
     /**
      * Get a single aanslag object based on the input.
      *
@@ -145,13 +144,12 @@ class SimTaxService
      */
     public function getAanslag(array $vraagBericht): array
     {
-        //todo
-        
+        // todo
         return ['Lv01-OPO'];
-        
+
     }//end getAanslag()
-    
-    
+
+
     /**
      * Create a bezwaar object based on the input.
      * This will actually only map the input and throw an event for the OpenBelastingenBundle to handle.
@@ -162,11 +160,10 @@ class SimTaxService
      */
     public function createBezwaar(array $vraagBericht): array
     {
-        //todo
-        
+        // todo
         return ['Lk01-BGB'];
-        
-    }//end getAanslag()
+
+    }//end createBezwaar()
 
 
     /**
