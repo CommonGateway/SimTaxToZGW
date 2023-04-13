@@ -18,8 +18,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
-        "commongateway/corebundle": "^1.0.66",
-        "common-gateway/open-belasting-bundle": "^0.0.5"
+        "commongateway/corebundle": "^1.0.67",
+        "common-gateway/open-belasting-bundle": "^0.0.6"
     },
     "require-dev": {
         "symfony/dependency-injection": "~3.4|~4.1|~5.0"

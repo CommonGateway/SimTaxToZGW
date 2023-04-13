@@ -10,6 +10,7 @@ namespace CommonGateway\SimTaxToZGWBundle\Service;
 
 use Adbar\Dot;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -33,6 +34,11 @@ class SimTaxService
      * @var GatewayResourceService
      */
     private GatewayResourceService $resourceService;
+    
+    /**
+     * @var CacheService
+     */
+    private CacheService $cacheService;
 
     /**
      * @var MappingService
@@ -54,23 +60,26 @@ class SimTaxService
 
     /**
      * @param GatewayResourceService $resourceService The Gateway Resource Service.
+     * @param CacheService           $cacheService    The CacheService
      * @param MappingService         $mappingService  The Mapping Service
      * @param EntityManagerInterface $entityManager   The Entity Manager.
      * @param LoggerInterface        $pluginLogger    The plugin version of the logger interface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
+        CacheService $cacheService,
         MappingService $mappingService,
         EntityManagerInterface $entityManager,
         LoggerInterface $pluginLogger
     ) {
         $this->resourceService = $resourceService;
+        $this->cacheService    = $cacheService;
         $this->mappingService  = $mappingService;
         $this->entityManager   = $entityManager;
         $this->logger          = $pluginLogger;
 
-        $this->configuration = [];
-        $this->data          = [];
+        $this->configuration   = [];
+        $this->data            = [];
 
     }//end __construct()
 
@@ -129,7 +138,12 @@ class SimTaxService
      */
     public function getAanslagen(array $vraagBericht): array
     {
-        // todo
+        $aanslagen = $this->cacheService->searchObjects(
+            null,
+            [],
+            ['https://openbelasting.nl/schemas/openblasting.aanslagbiljet.schema.json']
+        )['results'];
+        
         return ['Lv01-BLJ'];
 
     }//end getAanslagen()
