@@ -222,6 +222,8 @@ class SimTaxService
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
 
+        //todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
+        
         // todo
         return $this->createResponse(['Lk01-BGB'], 201);
 
