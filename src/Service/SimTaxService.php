@@ -166,8 +166,8 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:ABT']['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsnNummer                                        = $vraagBericht['ns2:body']['ns2:ABT']['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
-            $filter['belastingplichtige.burgerservicenummer'] = $bsnNummer;
+            $filter['belastingplichtige.burgerservicenummer'] =
+                $vraagBericht['ns2:body']['ns2:ABT']['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
