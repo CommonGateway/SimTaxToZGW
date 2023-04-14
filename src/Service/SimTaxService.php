@@ -223,7 +223,7 @@ class SimTaxService
         }
 
         $bezwaarObject = new ObjectEntity($bezwaarSchema);
-        $bezwaarArray = $this->mappingService->mapping($mapping, $vraagBericht);
+        $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
         $bezwaarObject->hydrate($bezwaarArray);
 
         $this->entityManager->persist($bezwaarObject);
