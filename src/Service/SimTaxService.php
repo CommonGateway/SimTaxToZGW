@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use App\Entity\ObjectEntity;
 
 class SimTaxService
 {
@@ -220,6 +221,13 @@ class SimTaxService
         if ($bezwaarSchema === null) {
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
+
+        $bezwaarObject = new ObjectEntity($bezwaarSchema);
+        $bezwaarArray = $this->mappingService->mapping($mapping, $vraagBericht);
+        $bezwaarObject->hydrate($bezwaarArray);
+
+        $this->entityManager->persist($bezwaarObject);
+        $this->entityManager->flush();
 
         // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
         // todo

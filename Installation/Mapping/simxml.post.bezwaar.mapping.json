@@ -1,0 +1,18 @@
+{
+  "title": "PostBezwaar",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "aanvraagnummer": "F",
+    "aanvraagdatum": "aanslagbiljetnummer",
+    "aanslagbiljetnummer": "dagtekening",
+    "aanslagbiljetvolgnummer": "J",
+    "gehoordWorden": "J",
+    "belastingplichtige": "aanslagBiljetNummer",
+    "aanslagregels": "aanslagBiljetNummer",
+    "beschikkingsregels": "aanslagBiljetVolgNummer",
+    "bijlagen": "aanslagBiljetVolgNummer"
+  }
+}
