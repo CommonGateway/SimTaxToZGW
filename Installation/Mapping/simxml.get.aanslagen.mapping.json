@@ -5,11 +5,28 @@
   "version": "0.0.1",
   "passTrough": false,
   "mapping": {
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.berichtsoort": "La01",
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.entiteittype": "BLJ",
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.sectormodel": "WOZ",
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieStUF": "0204",
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieSectormodel": "0204",
-    "SOAP-ENV:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "results"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:StUF": "http://www.egem.nl/StUF/StUF0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:WOZ": "http://www.egem.nl/StUF/sector/woz/0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xsi:schemaLocation": "http://www.egem.nl/StUF/sector/woz/0204 woz0204.msg.xsd",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.@xmlns": "http://www.egem.nl/StUF/StUF0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.berichtsoort": "La01",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.entiteittype": "BLJ",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.sectormodel": "WOZ",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieStUF": "0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieSectormodel": "0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.organisatie": "",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.applicatie": "CGS",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.administratie": "",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.ontvanger.organisatie": "SIM",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.ontvanger.applicatie": "simsite",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.referentienummer": "to do",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.tijdstipBericht": "to do",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer": "to do",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.@xmlns": "http://www.egem.nl/StUF/sector/woz/0204",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "[{%for result in results %}{{ map(\\\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\\\", result)|json_encode }}{%endfor%}]"
+  },
+  "cast": {
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "jsonToArray"
   }
 }
