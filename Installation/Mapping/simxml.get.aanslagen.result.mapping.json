@@ -40,8 +40,8 @@
     "BLJ.BLJPRS.@soortEntiteit": "R",
     "BLJ.BLJPRS.PRS.@soortEntiteit": "F",
     "BLJ.BLJPRS.PRS.bsn-nummer": "{{result.embedded.belastingplichtige.burgerservicenummer}}",
-    "BLJ.BLJASL": "{%if embedded.aanslagregels is defined%}[{%for aanslagregel in embedded.aanslagregels %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json\", {'aanslagregel': aanslagregel})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}",
-    "BLJ.BLJBSK": "{%if embedded.beschikkingsregels is defined%}[{%for beschikkingsregel in embedded.beschikkingsregels %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json\", {'beschikkingsregel': beschikkingsregel})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}"
+    "BLJ.BLJASL": "{%if result.embedded.aanslagregels is defined%}[{%for aanslagregel in result.embedded.aanslagregels %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json\", {'aanslagregel': aanslagregel})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}",
+    "BLJ.BLJBSK": "{%if result.embedded.beschikkingsregels is defined%}[{%for beschikkingsregel in result.embedded.beschikkingsregels %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json\", {'beschikkingsregel': beschikkingsregel})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}"
   },
   "cast": {
     "BLJ.BLJASL": "jsonToArray",
