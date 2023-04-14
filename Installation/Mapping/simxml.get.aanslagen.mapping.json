@@ -24,7 +24,7 @@
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.tijdstipBericht": "to do",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer": "to do",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.@xmlns": "http://www.egem.nl/StUF/sector/woz/0204",
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "[{%for result in results %}{{ map(\\\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\\\", result)|json_encode }}{%endfor%}]"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "{%if results is defined%}[{%for result in results %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", {'result': result})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}"
   },
   "cast": {
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "jsonToArray"
