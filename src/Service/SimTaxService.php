@@ -192,11 +192,21 @@ class SimTaxService
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslag']}."], 501);
         }
-
-        // todo: maybe just use searcObjects instead?
-        $aanslag = $this->cacheService->getObject('id-placeholder');
-
-        $responseContext = $this->mappingService->mapping($mapping, $aanslag);
+    
+        $filter = [];
+        if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
+            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
+        }
+    
+        $aanslagen                 = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+        if ($aanslagen['count'] > 1) {
+            // todo return & monolog
+        } elseif ($aanslagen['count'] === 1) {
+            $aanslagen['result'] = $aanslagen['results'][0];
+        }
+        $aanslagen['vraagbericht'] = $vraagBericht;
+    
+        $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
 
         return $this->createResponse($responseContext, 200);
 
