@@ -134,8 +134,7 @@ class SimTaxService
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
         case 'Lv01-BLJ':
-            $response = $this->createBezwaar($vraagBericht);
-            // $response = $this->getAanslagen($vraagBericht);
+            $response = $this->getAanslagen($vraagBericht);
             break;
         case 'Lv01-OPO':
             $response = $this->getAanslag($vraagBericht);
