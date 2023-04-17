@@ -118,7 +118,7 @@ class SimTaxService
         $this->data          = $data;
         $this->configuration = $configuration;
 
-        $this->logger->debug("SimTaxService -> simTaxHandler()");
+        $this->logger->info("SimTaxService -> simTaxHandler()");
 
         if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false) {
             $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
@@ -128,7 +128,7 @@ class SimTaxService
         $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'];
         $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
 
-        $this->logger->debug("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
+        $this->logger->info("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
         case 'Lv01-BLJ':
@@ -170,6 +170,7 @@ class SimTaxService
         }
 
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+        $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
 
