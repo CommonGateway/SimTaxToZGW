@@ -2,7 +2,7 @@
   "title": "GetAanslagen",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
     "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -24,9 +24,9 @@
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.tijdstipBericht": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:tijdstipBericht') }}",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer": "to do",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.@xmlns": "http://www.egem.nl/StUF/sector/woz/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "{%if results is defined%}[{%for result in results %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", {'result': result})|json_encode }}{%endfor%}]{%else%}\"\"{%endif%}"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "{%if results is defined%}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", results, true)|json_encode }}{%else%}\"\"{%endif%}"
   },
   "cast": {
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body": "jsonToArray"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "jsonToArray"
   }
 }
