@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use App\Entity\ObjectEntity;
+use DateTime;
 
 class SimTaxService
 {
@@ -133,7 +134,8 @@ class SimTaxService
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
         case 'Lv01-BLJ':
-            $response = $this->getAanslagen($vraagBericht);
+            $response = $this->createBezwaar($vraagBericht);
+            // $response = $this->getAanslagen($vraagBericht);
             break;
         case 'Lv01-OPO':
             $response = $this->getAanslag($vraagBericht);
@@ -203,6 +205,73 @@ class SimTaxService
 
     }//end getAanslag()
 
+    /**
+     * Map a bezwaar array based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return Response|array
+     */
+    private function mapXMLToBezwaar(array $vraagBericht)
+    {
+        $bezwaarArray = [
+            'aanvraagdatum' => null,
+            'aanvraagnummer' => null,
+            'aanslagbiljetnummer' => null,
+            'aanslagbiljetvolgnummer' => null
+        ];
+
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === true) {
+            $dateTime = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']);
+            $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
+        }
+
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:referentienummer']) === true) {
+            $bezwaarArray['aanvraagnummer'] = $vraagBericht['ns1:stuurgegevens']['ns1:referentienummer'];
+        }
+
+        if (isset($vraagBericht['ns2:body']['ns2:BLJ']) === true) {
+            foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $blj) {
+                foreach ($blj['ns2:extraElementen']['ns1:extraElement'] as $element) {
+                    switch ($element['@naam']) {
+                        case 'aanslagBiljetNummer':
+                            isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                            break;
+                        case 'aanslagBiljetVolgNummer':
+                            isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                                break;
+                        case 'bljPDF':
+                            $bijlagen[] = [
+                                'naamBestand' => 'bljPDF',
+                                'typeBestand' => null,
+                                'bestand' => $element['#']
+                            ];
+                                break;
+                        default:
+                            break;
+                    }//end switch
+                }//end foreach
+                if (isset($bsn) === false && isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+                    $bsn = $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
+                }
+            }//end foreach
+        }//end if
+
+        if (isset($bsn) === false) {
+            return $this->createResponse(['Error' => "No bsn given."], 400);
+        }
+
+        foreach ($bezwaarArray as $key => $property) {
+            if ($property === null) {
+                return $this->createResponse(['Error' => "No $key given."], 400);
+            }
+        }
+
+        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $bsn;
+        isset($bijlagen) === true && $bezwaarArray['bijlagen'] = $bijlagen;
+
+        return $bijlagen;
+    }
 
     /**
      * Create a bezwaar object based on the input.
@@ -223,8 +292,14 @@ class SimTaxService
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
 
+        $bezwaarArray = $this->mapXMLToBezwaar($vraagBericht);
+
+        if ($bezwaarArray instanceof Response === true) {
+            return $bezwaarArray;
+        }
+
         $bezwaarObject = new ObjectEntity($bezwaarSchema);
-        $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
+        // $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
         $bezwaarObject->hydrate($bezwaarArray);
 
         $this->entityManager->persist($bezwaarObject);
