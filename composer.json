@@ -19,7 +19,7 @@
     "require": {
         "php": ">=7.4",
         "commongateway/corebundle": "^1.0.69",
-        "common-gateway/open-belasting-bundle": "^0.0.11"
+        "common-gateway/open-belasting-bundle": "^0.0.12"
     },
     "require-dev": {
         "symfony/dependency-injection": "~3.4|~4.1|~5.0"

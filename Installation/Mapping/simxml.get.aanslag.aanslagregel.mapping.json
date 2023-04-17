@@ -1,0 +1,13 @@
+{
+  "title": "GetAanslagAanslagregel",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "@soortEntiteit": "R",
+    "ASL.@soortEntiteit": "F",
+    "ASL.belastingJaar": "2015",
+    "ASL.todo": "Placeholder, to do, make showing aanslagregels abstract"
+  }
+}
