@@ -12,8 +12,8 @@
     "BSK.eindDatumWOZTijdVak": "beschikkingsregel.eindDatumWOZTijdVak ??? 20160101",
     "BSK.waardePeilJaar": "beschikkingsregel.waardePeilJaar ??? 2017",
     "BSK.indicatieBezwaar": "beschikkingsregel.indicatieBezwaar ??? J",
-    "BSK.extraElementen.StUF:extraElement.@naam": "beschikkingSleutel",
-    "BSK.extraElementen.StUF:extraElement": "beschikkingsregel.beschikkingSleutel ??? P00000000090000000720210101001001",
+    "BSK.extraElementen.StUF:extraElement.0.@naam": "beschikkingSleutel",
+    "BSK.extraElementen.StUF:extraElement.#": "beschikkingsregel.beschikkingSleutel ??? P00000000090000000720210101001001",
     "BSK.todo": "Placeholder, to do, make showing beschikkingsregels abstract"
   }
 }
