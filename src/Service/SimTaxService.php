@@ -108,7 +108,7 @@ class SimTaxService
         $this->cacheService    = $cacheService;
         $this->mappingService  = $mappingService;
         $this->entityManager   = $entityManager;
-        $this->eventDispatcher   = $eventDispatcher;
+        $this->eventDispatcher = $eventDispatcher;
         $this->logger          = $pluginLogger;
 
         $this->configuration = [];
@@ -214,6 +214,7 @@ class SimTaxService
 
     }//end getAanslag()
 
+
     /**
      * Map a bezwaar array based on the input.
      *
@@ -224,14 +225,14 @@ class SimTaxService
     private function mapXMLToBezwaar(array $vraagBericht)
     {
         $bezwaarArray = [
-            'aanvraagdatum' => null,
-            'aanvraagnummer' => null,
-            'aanslagbiljetnummer' => null,
-            'aanslagbiljetvolgnummer' => null
+            'aanvraagdatum'           => null,
+            'aanvraagnummer'          => null,
+            'aanslagbiljetnummer'     => null,
+            'aanslagbiljetvolgnummer' => null,
         ];
 
         if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === true) {
-            $dateTime = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']);
+            $dateTime                      = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']);
             $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
         }
 
@@ -243,23 +244,24 @@ class SimTaxService
             foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $blj) {
                 foreach ($blj['ns2:extraElementen']['ns1:extraElement'] as $element) {
                     switch ($element['@naam']) {
-                        case 'aanslagBiljetNummer':
-                            isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
-                            break;
-                        case 'aanslagBiljetVolgNummer':
-                            isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
-                                break;
-                        case 'bljPDF':
-                            $bijlagen[] = [
-                                'naamBestand' => 'bljPDF',
-                                'typeBestand' => null,
-                                'bestand' => $element['#']
-                            ];
-                                break;
-                        default:
-                            break;
+                    case 'aanslagBiljetNummer':
+                        isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                        break;
+                    case 'aanslagBiljetVolgNummer':
+                        isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                        break;
+                    case 'bljPDF':
+                        $bijlagen[] = [
+                            'naamBestand' => 'bljPDF',
+                            'typeBestand' => null,
+                            'bestand'     => $element['#'],
+                        ];
+                        break;
+                    default:
+                        break;
                     }//end switch
                 }//end foreach
+
                 if (isset($bsn) === false && isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
                     $bsn = $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
                 }
@@ -277,10 +279,12 @@ class SimTaxService
         }
 
         $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $bsn;
-        isset($bijlagen) === true && $bezwaarArray['bijlagen'] = $bijlagen;
+        isset($bijlagen) === true && $bezwaarArray['bijlagen']     = $bijlagen;
 
         return $bijlagen;
-    }
+
+    }//end mapXMLToBezwaar()
+
 
     /**
      * Create a bezwaar object based on the input.
@@ -314,7 +318,6 @@ class SimTaxService
         $this->entityManager->persist($bezwaarObject);
         $this->entityManager->flush();
 
-        
         $event = new ActionEvent('object', ['response' => $bezwaarObject->toArray(), 'entity' => $bezwaarSchema]);
         $this->eventDispatcher->dispatch($event, $event->getType());
 
