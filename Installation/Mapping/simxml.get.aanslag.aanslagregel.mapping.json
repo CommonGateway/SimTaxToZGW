@@ -8,6 +8,6 @@
     "@soortEntiteit": "R",
     "ASL.@soortEntiteit": "F",
     "ASL.belastingJaar": "2015",
-    "ASL.ingangsDatumAanslagRegel": "Placeholder, to do, make showing aanslagregels abstract"
+    "ASL.todo": "Placeholder, to do, make showing aanslagregels abstract"
   }
 }

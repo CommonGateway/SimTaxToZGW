@@ -1,13 +1,19 @@
 {
-  "title": "GetAanslagAanslagregel",
+  "title": "GetAanslagBeschikkingsregel",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
   "version": "0.0.1",
   "passTrough": false,
   "mapping": {
     "@soortEntiteit": "R",
-    "ASL.@soortEntiteit": "F",
-    "ASL.beschikkingBiljetNummer": "26",
-    "ASL.beginDatumWOZTijdVak": "Placeholder, to do, make showing beschikkingsregels abstract"
+    "BSK.@soortEntiteit": "F",
+    "BSK.beschikkingBiljetNummer": "beschikkingsregel.beschikkingBiljetNummer ??? 26",
+    "BSK.beginDatumWOZTijdVak": "beschikkingsregel.beginDatumWOZTijdVak ??? 20150101",
+    "BSK.eindDatumWOZTijdVak": "beschikkingsregel.eindDatumWOZTijdVak ??? 20160101",
+    "BSK.waardePeilJaar": "beschikkingsregel.waardePeilJaar ??? 2017",
+    "BSK.indicatieBezwaar": "beschikkingsregel.indicatieBezwaar ??? J",
+    "BSK.extraElementen.StUF:extraElement.@naam": "beschikkingSleutel",
+    "BSK.extraElementen.StUF:extraElement": "beschikkingsregel.beschikkingSleutel ??? P00000000090000000720210101001001",
+    "BSK.todo": "Placeholder, to do, make showing beschikkingsregels abstract"
   }
 }
