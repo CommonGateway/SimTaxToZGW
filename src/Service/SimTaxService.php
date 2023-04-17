@@ -9,6 +9,7 @@
 namespace CommonGateway\SimTaxToZGWBundle\Service;
 
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use App\Entity\ObjectEntity;
+use App\Event\ActionEvent;
 use DateTime;
 
 class SimTaxService
@@ -52,6 +54,11 @@ class SimTaxService
     private EntityManagerInterface $entityManager;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $eventDispatcher;
+
+    /**
      * The plugin logger.
      *
      * @var LoggerInterface
@@ -82,23 +89,26 @@ class SimTaxService
 
 
     /**
-     * @param GatewayResourceService $resourceService The Gateway Resource Service.
-     * @param CacheService           $cacheService    The CacheService
-     * @param MappingService         $mappingService  The Mapping Service
-     * @param EntityManagerInterface $entityManager   The Entity Manager.
-     * @param LoggerInterface        $pluginLogger    The plugin version of the logger interface.
+     * @param GatewayResourceService   $resourceService The Gateway Resource Service.
+     * @param CacheService             $cacheService    The CacheService
+     * @param MappingService           $mappingService  The Mapping Service
+     * @param EntityManagerInterface   $entityManager   The Entity Manager.
+     * @param EventDispatcherInterface $eventDispatcher The EventDispatcherInterface.
+     * @param LoggerInterface          $pluginLogger    The plugin version of the logger interface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
         CacheService $cacheService,
         MappingService $mappingService,
         EntityManagerInterface $entityManager,
+        EventDispatcherInterface $eventDispatcher,
         LoggerInterface $pluginLogger
     ) {
         $this->resourceService = $resourceService;
         $this->cacheService    = $cacheService;
         $this->mappingService  = $mappingService;
         $this->entityManager   = $entityManager;
+        $this->eventDispatcher   = $eventDispatcher;
         $this->logger          = $pluginLogger;
 
         $this->configuration = [];
@@ -303,6 +313,10 @@ class SimTaxService
 
         $this->entityManager->persist($bezwaarObject);
         $this->entityManager->flush();
+
+        
+        $event = new ActionEvent('object', ['response' => $bezwaarObject->toArray(), 'entity' => $bezwaarSchema]);
+        $this->eventDispatcher->dispatch($event, $event->getType());
 
         // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
         // todo
