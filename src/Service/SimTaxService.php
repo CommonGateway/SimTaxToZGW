@@ -194,6 +194,7 @@ class SimTaxService
         }
 
         $filter = [];
+        // todo: make these two filters AND and not OR
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
             $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
         }
