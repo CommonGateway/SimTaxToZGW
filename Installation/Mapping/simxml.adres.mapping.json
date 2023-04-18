@@ -12,7 +12,7 @@
     "huisnummer": "{{ huisnummer }}",
     "huisletter": "{{ huisletter }}",
     "huisnummertoevoeging": "{{ huisnummertoevoeging }}",
-    "aanduidingBijHuisnummer.@xsi:nil": true,
+    "aanduidingBijHuisnummer.@xsi:nil": "true",
     "aanduidingBijHuisnummer.@StUF:noValue": "geenWaarde",
     "locatieomschrijving": "{{ locatieomschrijving }}"
   }

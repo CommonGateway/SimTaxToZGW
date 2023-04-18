@@ -7,7 +7,27 @@
   "mapping": {
     "@soortEntiteit": "R",
     "ASL.@soortEntiteit": "F",
-    "ASL.belastingJaar": "{{ belastingJaar }}",
-    "ASL.todo": "Placeholder, to do, make showing aanslagregels abstract"
+    "ASL.belastingJaar": "belastingJaar",
+    "ASL.ingangsDatumAanslagRegel": "ingangsDatumAanslagRegel",
+    "ASL.afmeldDatumAanslagRegel": "afmeldDatumAanslagRegel",
+    "ASL.bedragAanslagRegel": "bedragAanslagRegel",
+    "ASL.btwBedragAanslagRegel": "btwBedragAanslagRegel",
+    "ASL.bedragAanslagRegelExclusiefBtw": "bedragAanslagRegelExclusiefBtw",
+    "ASL.codeBelastingSoort": "codeBelastingSoort",
+    "ASL.omschrijvingBelastingSoort": "omschrijvingBelastingSoort",
+    "ASL.tariefSoort": "tariefSoort",
+    "ASL.omschrijvingTariefSoort": "omschrijvingTariefSoort",
+    "ASL.omschrijvingBelastingObject.@xsi:nil": "true",
+    "ASL.omschrijvingBelastingObject.@StUF:noValue": "geenWaarde",
+    "ASL.grondslag": "grondslag",
+    "ASL.omschrijvingGrondslag": "omschrijvingGrondslag",
+    "ASL.WOZObjectNummer": "WOZObjectNummer",
+    "ASL.indicatieBezwaar": "indicatieBezwaar",
+    "ASL.belastingplichtnummer": "belastingplichtnummer",
+    "ASL.ASLADR.@soortEntiteit": "R",
+    "ASL.ASLADR.ADR": "{% if value.adres is defined and value.adres is not empty %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres, true)|json_encode }}{% else %}\"\"{% endif %}"
+  },
+  "cast": {
+    "ASL.ASLADR.ADR": "jsonToArray"
   }
 }
