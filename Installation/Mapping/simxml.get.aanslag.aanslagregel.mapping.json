@@ -7,7 +7,7 @@
   "mapping": {
     "@soortEntiteit": "R",
     "ASL.@soortEntiteit": "F",
-    "ASL.belastingJaar": "2015",
+    "ASL.belastingJaar": "{{ belastingJaar }}",
     "ASL.todo": "Placeholder, to do, make showing aanslagregels abstract"
   }
 }

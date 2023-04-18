@@ -7,13 +7,35 @@
   "mapping": {
     "@soortEntiteit": "R",
     "BSK.@soortEntiteit": "F",
-    "BSK.beschikkingBiljetNummer": "beschikkingsregel.beschikkingBiljetNummer ??? 26",
-    "BSK.beginDatumWOZTijdVak": "beschikkingsregel.beginDatumWOZTijdVak ??? 20150101",
-    "BSK.eindDatumWOZTijdVak": "beschikkingsregel.eindDatumWOZTijdVak ??? 20160101",
-    "BSK.waardePeilJaar": "beschikkingsregel.waardePeilJaar ??? 2017",
-    "BSK.indicatieBezwaar": "beschikkingsregel.indicatieBezwaar ??? J",
+    "BSK.beschikkingBiljetNummer.@xsi:nil": true,
+    "BSK.beschikkingBiljetNummer.@StUF:noValue": "geenWaarde",
+    "BSK.beginDatumWOZTijdVak.@xsi:nil": true,
+    "BSK.beginDatumWOZTijdVak.@StUF:noValue": "geenWaarde",
+    "BSK.eindDatumWOZTijdVak.@xsi:nil": true,
+    "BSK.eindDatumWOZTijdVak.@StUF:noValue": "geenWaarde",
+    "BSK.waardePeilJaar.@xsi:nil": true,
+    "BSK.waardePeilJaar.@StUF:noValue": "geenWaarde",
+    "BSK.indicatieBezwaar.@xsi:nil": true,
+    "BSK.indicatieBezwaar.@StUF:noValue": "geenWaarde",
     "BSK.extraElementen.StUF:extraElement.0.@naam": "beschikkingSleutel",
-    "BSK.extraElementen.StUF:extraElement.#": "beschikkingsregel.beschikkingSleutel ??? P00000000090000000720210101001001",
-    "BSK.todo": "Placeholder, to do, make showing beschikkingsregels abstract"
+    "BSK.extraElementen.StUF:extraElement.#": "{{ sleutelBeschikkingsregel }}",
+    "BSK.BSKWRD.@soortEntiteit": "R",
+    "BSK.BSKWRD.WRD.@soortEntiteit": "F",
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZB": "{{ vastgesteldeWaarde }}",
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZBGebruikers.@xsi:nil": true,
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZBGebruikers.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.vastgesteldeWaarde": "{{ vastgesteldeWaarde }}",
+    "BSK.BSKWRD.WRD.waardePeilDatum.@xsi:nil": true,
+    "BSK.BSKWRD.WRD.waardePeilDatum.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.WRDWOZ.@soortEntiteit": "R",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.@soortEntiteit": "F",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZObjectNummer": "{{ WOZObjectNummer }}",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@xsi:nil": true,
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if adres is defined and adres is not empty %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres)|json_encode }}{% else %}\"\"{% endif %}"
+  },
+  "cast": {
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "jsonToArray"
   }
 }
