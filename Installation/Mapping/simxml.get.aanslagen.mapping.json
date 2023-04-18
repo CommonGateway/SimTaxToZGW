@@ -25,7 +25,7 @@
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@xsi:nil": "true",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@StUF:noValue": "geenWaarde",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.@xmlns": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "{%if results is defined%}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", results, true)|json_encode }}{%else%}\"\"{%endif%}"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "{% if results is defined %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", results, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "jsonToArray"

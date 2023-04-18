@@ -18,7 +18,7 @@
     "BSK.indicatieBezwaar.@xsi:nil": "true",
     "BSK.indicatieBezwaar.@StUF:noValue": "geenWaarde",
     "BSK.extraElementen.StUF:extraElement.0.@naam": "beschikkingSleutel",
-    "BSK.extraElementen.StUF:extraElement.#": "{{ value.sleutelBeschikkingsregel }}",
+    "BSK.extraElementen.StUF:extraElement.0.#": "{{ value.sleutelBeschikkingsregel }}",
     "BSK.BSKWRD.@soortEntiteit": "R",
     "BSK.BSKWRD.WRD.@soortEntiteit": "F",
     "BSK.BSKWRD.WRD.heffingsmaatstafOZB": "{{ value.vastgesteldeWaarde }}",
@@ -32,8 +32,10 @@
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZObjectNummer": "{{ value.wozObjectnummer }}",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@xsi:nil": "true",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@StUF:noValue": "geenWaarde",
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R",
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set myArray = [] %}{% set myArray = myArray|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", myArray)|json_encode }}{% else %}\"\"{% endif %}"
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R"
+  },
+  "mapping_PutThisBackWhenItWorks": {
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "jsonToArray"

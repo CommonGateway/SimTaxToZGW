@@ -30,8 +30,10 @@
     "ASL.indicatieBezwaar.@xsi:nil": "true",
     "ASL.indicatieBezwaar.@StUF:noValue": "geenWaarde",
     "ASL.belastingplichtnummer": "{{ value.belastingplichtnummer }}",
-    "ASL.ASLADR.@soortEntiteit": "R",
-    "ASL.ASLADR.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set myArray = [] %}{% set myArray = myArray|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", myArray, true)|json_encode }}{% else %}\"\"{% endif %}"
+    "ASL.ASLADR.@soortEntiteit": "R"
+  },
+  "mapping_PutThisBackWhenItWorks": {
+    "ASL.ASLADR.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
     "ASL.ASLADR.ADR": "jsonToArray"

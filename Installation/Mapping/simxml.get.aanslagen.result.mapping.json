@@ -40,8 +40,8 @@
     "BLJPRS.@soortEntiteit": "R",
     "BLJPRS.PRS.@soortEntiteit": "F",
     "BLJPRS.PRS.bsn-nummer": "{{ value.embedded.belastingplichtige.burgerservicenummer }}",
-    "BLJASL": "{% if value.embedded.aanslagregels is defined %}{% set myArray = [] %}{% set myArray = myArray|merge(value.embedded.aanslagregels) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json\", myArray, true)|json_encode }}{% else %}\"\"{% endif %}",
-    "BLJBSK": "{% if value.embedded.beschikkingsregels is defined %}{% set myArray = [] %}{% set myArray = myArray|merge(value.embedded.beschikkingsregels) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json\", myArray, true)|json_encode }}{% else %}\"\"{% endif %}"
+    "BLJASL": "{% if value.embedded.aanslagregels is defined %}{% set aanslagregels = [] %}{% set aanslagregels = aanslagregels|merge(value.embedded.aanslagregels) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json\", aanslagregels, true)|json_encode }}{% else %}\"\"{% endif %}",
+    "BLJBSK": "{% if value.embedded.beschikkingsregels is defined %}{% set beschikkingsregels = [] %}{% set beschikkingsregels = beschikkingsregels|merge(value.embedded.beschikkingsregels) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json\", beschikkingsregels, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
     "BLJASL": "jsonToArray",
