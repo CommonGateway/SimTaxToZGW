@@ -6,14 +6,14 @@
   "passTrough": false,
   "mapping": {
     "@soortEntiteit": "F",
-    "postcode": "{{ postcode }}",
-    "woonplaatsnaam": "{{ woonplaatsnaam }}",
-    "straatnaam": "{{ straatnaam }}",
-    "huisnummer": "{{ huisnummer }}",
-    "huisletter": "{{ huisletter }}",
-    "huisnummertoevoeging": "{{ huisnummertoevoeging }}",
+    "postcode": "{{ value.postcode }}",
+    "woonplaatsnaam": "{{ value.woonplaatsnaam }}",
+    "straatnaam": "{{ value.straatnaam }}",
+    "huisnummer": "{{ value.huisnummer }}",
+    "huisletter": "{{ value.huisletter }}",
+    "huisnummertoevoeging": "{{ value.huisnummertoevoeging }}",
     "aanduidingBijHuisnummer.@xsi:nil": "true",
     "aanduidingBijHuisnummer.@StUF:noValue": "geenWaarde",
-    "locatieomschrijving": "{{ locatieomschrijving }}"
+    "locatieomschrijving": "{{ value.locatieomschrijving }}"
   }
 }
