@@ -33,7 +33,7 @@
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@xsi:nil": "true",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@StUF:noValue": "geenWaarde",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R",
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.adres is defined and value.adres is not empty %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", value.adres)|json_encode }}{% else %}\"\"{% endif %}"
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set myArray = [] %}{% set myArray = myArray|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", myArray)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "jsonToArray"
