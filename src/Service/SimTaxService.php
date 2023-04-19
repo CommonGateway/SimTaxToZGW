@@ -178,8 +178,8 @@ class SimTaxService
         }
 
         $filter = [];
-        if (isset($vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $filter['embedded.belastingplichtige.burgerservicenummer'] = $vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
+        if (isset($vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $filter['embedded.belastingplichtige.burgerservicenummer'] = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
         $aanslagen                 = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
@@ -206,10 +206,26 @@ class SimTaxService
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslag']}."], 501);
         }
 
-        // todo: maybe just use searcObjects instead?
-        $aanslag = $this->cacheService->getObject('id-placeholder');
+        $filter = [];
+        // todo: make these two filters AND and not OR
+        if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
+            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
+        }
 
-        $responseContext = $this->mappingService->mapping($mapping, $aanslag);
+        if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagbiljetvolgnummer']) === true) {
+            $filter['aanslagbiljetvolgnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagbiljetvolgnummer'];
+        }
+
+        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+        if ($aanslagen['count'] > 1) {
+            // todo return & monolog
+        } else if ($aanslagen['count'] === 1) {
+            $aanslagen['result'] = $aanslagen['results'][0];
+        }
+
+        $aanslagen['vraagbericht'] = $vraagBericht;
+
+        $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
 
         return $this->createResponse($responseContext, 200);
 
