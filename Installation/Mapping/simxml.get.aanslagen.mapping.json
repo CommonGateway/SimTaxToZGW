@@ -1,0 +1,33 @@
+{
+  "title": "GetAanslagen",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.2",
+  "passTrough": false,
+  "mapping": {
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:StUF": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:WOZ": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.@xsi:schemaLocation": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }} woz{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}.msg.xsd",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.@xmlns": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.berichtsoort": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:berichtsoort') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.entiteittype": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:entiteittype') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.sectormodel": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieStUF": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.versieSectormodel": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieSectormodel') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.organisatie": "{{ attribute(attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:ontvanger'), 'ns1:organisatie') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.applicatie": "{{ attribute(attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:ontvanger'), 'ns1:applicatie') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.zender.administratie": "",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.ontvanger.organisatie": "{{ attribute(attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:zender'), 'ns1:organisatie') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.ontvanger.applicatie": "{{ attribute(attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:zender'), 'ns1:applicatie') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.referentienummer": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:referentienummer') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.tijdstipBericht": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:tijdstipBericht') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@xsi:nil": "true",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@StUF:noValue": "geenWaarde",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.@xmlns": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "{% if results is defined %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", results, true)|json_encode }}{% else %}\"\"{% endif %}"
+  },
+  "cast": {
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "jsonToArray"
+  }
+}

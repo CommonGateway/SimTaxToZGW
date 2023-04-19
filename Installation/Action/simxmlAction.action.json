@@ -1,0 +1,16 @@
+{
+  "title": "simxmlAction",
+  "$id": "https://dowr.simxml.nl/action/simxmlAction.action.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Action.schema.json",
+  "version": "0.0.1",
+  "listens": [
+    "xml.inbound"
+  ],
+  "throws": [
+    "open.belastingen.bezwaar.created"
+  ],
+  "conditions": {
+    "==": [1,1]
+  },
+  "class": "CommonGateway\\SimTaxToZGWBundle\\ActionHandler\\SimTaxHandler"
+}

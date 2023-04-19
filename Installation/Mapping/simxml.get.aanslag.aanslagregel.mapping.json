@@ -1,0 +1,41 @@
+{
+  "title": "GetAanslagAanslagregel",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "@soortEntiteit": "R",
+    "ASL.@soortEntiteit": "F",
+    "ASL.belastingJaar": "{{ value.belastingJaar }}",
+    "ASL.ingangsDatumAanslagRegel": "{{ value.ingangsdatum }}",
+    "ASL.afmeldDatumAanslagRegel": "{{ value.einddatum }}",
+    "ASL.bedragAanslagRegel": "{{ value.bedrag }}",
+    "ASL.btwBedragAanslagRegel.@xsi:nil": "true",
+    "ASL.btwBedragAanslagRegel.@StUF:noValue": "geenWaarde",
+    "ASL.bedragAanslagRegelExclusiefBtw": "{{ value.bedrag }}",
+    "ASL.codeBelastingSoort": "{{ value.codeBelastingsoort }}",
+    "ASL.omschrijvingBelastingSoort": "{{ value.omschrijvingBelastingsoort }}",
+    "ASL.tariefSoort.@xsi:nil": "true",
+    "ASL.tariefSoort.@StUF:noValue": "geenWaarde",
+    "ASL.omschrijvingTariefSoort.@xsi:nil": "true",
+    "ASL.omschrijvingTariefSoort.@StUF:noValue": "geenWaarde",
+    "ASL.omschrijvingBelastingObject.@xsi:nil": "true",
+    "ASL.omschrijvingBelastingObject.@StUF:noValue": "geenWaarde",
+    "ASL.grondslag": "{{ value.heffingsgrondslag }}",
+    "ASL.omschrijvingGrondslag.@xsi:nil": "true",
+    "ASL.omschrijvingGrondslag.@StUF:noValue": "geenWaarde",
+    "ASL.WOZObjectNummer.@xsi:nil": "true",
+    "ASL.WOZObjectNummer.@StUF:noValue": "geenWaarde",
+    "ASL.indicatieBezwaar.@xsi:nil": "true",
+    "ASL.indicatieBezwaar.@StUF:noValue": "geenWaarde",
+    "ASL.belastingplichtnummer": "{{ value.belastingplichtnummer }}",
+    "ASL.ASLADR.@soortEntiteit": "R"
+  },
+  "mapping_PutThisBackWhenItWorks": {
+    "ASL.ASLADR.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres, true)|json_encode }}{% else %}\"\"{% endif %}"
+  },
+  "cast": {
+    "ASL.ASLADR.ADR": "jsonToArray"
+  }
+}

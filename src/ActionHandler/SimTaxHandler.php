@@ -43,7 +43,7 @@ class SimTaxHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://example.com/ActionHandler/SimTaxToZGWHandler.ActionHandler.json',
+            '$id'         => 'https://dowr.simxml.nl/ActionHandler/SimTaxToZGWHandler.ActionHandler.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'SimTaxToZGW ActionHandler',
             'description' => 'This handler returns a welcoming string',

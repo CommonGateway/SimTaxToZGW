@@ -1,0 +1,43 @@
+{
+  "title": "GetAanslagBeschikkingsregel",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "@soortEntiteit": "R",
+    "BSK.@soortEntiteit": "F",
+    "BSK.beschikkingBiljetNummer.@xsi:nil": "true",
+    "BSK.beschikkingBiljetNummer.@StUF:noValue": "geenWaarde",
+    "BSK.beginDatumWOZTijdVak.@xsi:nil": "true",
+    "BSK.beginDatumWOZTijdVak.@StUF:noValue": "geenWaarde",
+    "BSK.eindDatumWOZTijdVak.@xsi:nil": "true",
+    "BSK.eindDatumWOZTijdVak.@StUF:noValue": "geenWaarde",
+    "BSK.waardePeilJaar.@xsi:nil": "true",
+    "BSK.waardePeilJaar.@StUF:noValue": "geenWaarde",
+    "BSK.indicatieBezwaar.@xsi:nil": "true",
+    "BSK.indicatieBezwaar.@StUF:noValue": "geenWaarde",
+    "BSK.extraElementen.StUF:extraElement.0.@naam": "beschikkingSleutel",
+    "BSK.extraElementen.StUF:extraElement.0.#": "{{ value.sleutelBeschikkingsregel }}",
+    "BSK.BSKWRD.@soortEntiteit": "R",
+    "BSK.BSKWRD.WRD.@soortEntiteit": "F",
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZB": "{{ value.vastgesteldeWaarde }}",
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZBGebruikers.@xsi:nil": "true",
+    "BSK.BSKWRD.WRD.heffingsmaatstafOZBGebruikers.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.vastgesteldeWaarde": "{{ value.vastgesteldeWaarde }}",
+    "BSK.BSKWRD.WRD.waardePeilDatum.@xsi:nil": "true",
+    "BSK.BSKWRD.WRD.waardePeilDatum.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.WRDWOZ.@soortEntiteit": "R",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.@soortEntiteit": "F",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZObjectNummer": "{{ value.wozObjectnummer }}",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@xsi:nil": "true",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@StUF:noValue": "geenWaarde",
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R"
+  },
+  "mapping_PutThisBackWhenItWorks": {
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres)|json_encode }}{% else %}\"\"{% endif %}"
+  },
+  "cast": {
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "jsonToArray"
+  }
+}
