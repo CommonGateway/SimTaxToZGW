@@ -108,7 +108,7 @@ class SimTaxService
         $this->cacheService    = $cacheService;
         $this->mappingService  = $mappingService;
         $this->entityManager   = $entityManager;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->eventDispatcher   = $eventDispatcher;
         $this->logger          = $pluginLogger;
 
         $this->configuration = [];
@@ -132,29 +132,30 @@ class SimTaxService
 
         $this->logger->info("SimTaxService -> simTaxHandler()");
 
-        if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false) {
+        if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false &&
+        isset($this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht']['ns1:stuurgegevens']) === false) {
             $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
             return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
         }
 
-        $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'];
+        $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'] ?? $this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht'];
         $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
 
         $this->logger->info("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
         switch ($stuurGegevens['ns1:berichtsoort'].'-'.$stuurGegevens['ns1:entiteittype']) {
-        case 'Lv01-BLJ':
-            $response = $this->getAanslagen($vraagBericht);
-            break;
-        case 'Lv01-OPO':
-            $response = $this->getAanslag($vraagBericht);
-            break;
-        case 'Lk01-BGB':
-            $response = $this->createBezwaar($vraagBericht);
-            break;
-        default:
-            $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
-            $response = $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400);
+            case 'Lv01-BLJ':
+                $response = $this->getAanslagen($vraagBericht);
+                break;
+            case 'Lv01-OPO':
+                $response = $this->getAanslag($vraagBericht);
+                break;
+            case 'Lk01-BGB':
+                $response = $this->createBezwaar($vraagBericht);
+                break;
+            default:
+                $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
+                $response = $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400);
         }
 
         return ['response' => $response];
@@ -214,7 +215,6 @@ class SimTaxService
 
     }//end getAanslag()
 
-
     /**
      * Map a bezwaar array based on the input.
      *
@@ -224,49 +224,80 @@ class SimTaxService
      */
     private function mapXMLToBezwaar(array $vraagBericht)
     {
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
+            return $this->createResponse(['Error' => "No referentienummer given."], 400);
+        }
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
+            return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
+        }
+
         $bezwaarArray = [
-            'aanvraagdatum'           => null,
-            'aanvraagnummer'          => null,
-            'aanslagbiljetnummer'     => null,
-            'aanslagbiljetvolgnummer' => null,
+            'aanvraagdatum' => null,
+            'aanvraagnummer' => null,
+            'aanslagbiljetnummer' => null,
+            'aanslagbiljetvolgnummer' => null
         ];
 
-        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === true) {
-            $dateTime                      = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']);
-            $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
+            $dateTime = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+            if ($dateTime === false) {
+                $dateTime = DateTime::createFromFormat('Ymd', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+            }
+            if ($dateTime === false) {
+                $bezwaarArray['aanvraagdatum'] = null;
+            } else {
+                $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
+            }
+        }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer']) === true) {
+            $bezwaarArray['aanvraagnummer'] = $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
         }
 
-        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:referentienummer']) === true) {
-            $bezwaarArray['aanvraagnummer'] = $vraagBericht['ns1:stuurgegevens']['ns1:referentienummer'];
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true && $vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
+            $bezwaarArray['gehoordWorden'] = true;
+        } else {
+            $bezwaarArray['gehoordWorden'] = false;
         }
 
-        if (isset($vraagBericht['ns2:body']['ns2:BLJ']) === true) {
-            foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $blj) {
-                foreach ($blj['ns2:extraElementen']['ns1:extraElement'] as $element) {
-                    switch ($element['@naam']) {
-                    case 'aanslagBiljetNummer':
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']) === true) {
+            $bezwaarArray['bijlagen'][0] = [
+                'naamBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:naam'],
+                'typeBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:type'],
+                'bestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']
+            ];
+        }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
+            foreach ($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
+                switch ($element['@naam']) {
+                    case 'kenmerkNummerBesluit':
                         isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
                         break;
-                    case 'aanslagBiljetVolgNummer':
+                    case 'kenmerkVolgNummerBesluit':
                         isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
                         break;
-                    case 'bljPDF':
-                        $bijlagen[] = [
-                            'naamBestand' => 'bljPDF',
-                            'typeBestand' => null,
-                            'bestand'     => $element['#'],
-                        ];
+                    case 'codeGriefSoort':
+                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['codeGriefSoort']) === false && 
+                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['codeGriefSoort'] = $element['#'];
+                        break;
+                    case 'keuzeOmschrijvingGrief':
+                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false && 
+                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                        break;
+                    case 'belastingplichtnummer':
+                        isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false && 
+                        $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
                         break;
                     default:
                         break;
-                    }//end switch
-                }//end foreach
-
-                if (isset($bsn) === false && isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-                    $bsn = $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
-                }
+                }//end switch
             }//end foreach
         }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $bsn = $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
+        }
 
         if (isset($bsn) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 400);
@@ -276,15 +307,57 @@ class SimTaxService
             if ($property === null) {
                 return $this->createResponse(['Error' => "No $key given."], 400);
             }
-        }
+        }//end foreach
+
 
         $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $bsn;
-        isset($bijlagen) === true && $bezwaarArray['bijlagen']     = $bijlagen;
 
-        return $bijlagen;
+        return $bezwaarArray;
+    }
 
-    }//end mapXMLToBezwaar()
+    /**
+     * Map a bezwaar response array based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array
+     */
+    private function mapBezwaarResponse(array $vraagBericht)
+    {
+        $responseArray = [
+            'soapenv:Envelope' => [
+                // '@attributes' => ['xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/'],
+                'soapenv:Body' => [
+                    'StUF:bevestigingsBericht' => [
+                        // '@attributes' => ['xmlns:StUF' => 'http://www.egem.nl/StUF/StUF0204', 
+                        //                   'xmlns:xsi'  => 'http://www.w3.org/2001/XMLSchema-instance'],
+                        'StUF:stuurgegevens' => [
+                            // '@attributes' => ['xmlns' => 'http://www.egem.nl/StUF/StUF0204'],
+                            'berichtsoort' => 'Bv01',
+                            'entiteittype' => 'BGB',
+                            'sectormodel' => 'ef',
+                            'versieStUF' => '0204',
+                            'versieSectormodel' => '0204',
+                            'zender' => [
+                                'applicatie' => 'CGS',
+                            ],
+                            'ontvanger' => [
+                                'organisatie' => 'SIM',
+                                'applicatie' => 'simsite',
+                            ],
+                            'referentienummer' => $vraagBericht['ns1:stuurgegevens']['ns1:referentienummer'],
+                            'tijdstipBericht' => $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
+                            'bevestiging' => [
+                                'crossRefNummer' => '?',
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
 
+        return $responseArray;
+    }
 
     /**
      * Create a bezwaar object based on the input.
@@ -321,9 +394,11 @@ class SimTaxService
         $event = new ActionEvent('object', ['response' => $bezwaarObject->toArray(), 'entity' => $bezwaarSchema]);
         $this->eventDispatcher->dispatch($event, $event->getType());
 
+        $responseArray = $this->mapBezwaarResponse($vraagBericht);
+
         // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
         // todo
-        return $this->createResponse(['Lk01-BGB'], 201);
+        return $this->createResponse($responseArray, 201);
 
     }//end createBezwaar()
 
