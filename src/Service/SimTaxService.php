@@ -187,8 +187,12 @@ class SimTaxService
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
 
-        // $aanslagenOld              = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]); // gets object from gateway
-        $aanslagen                 = ['results' => $this->syncAanslagenService->getAanslagen($bsn)]; // gets object from openbelastingen api
+        // Sync aanslagen from openbelasting api with given bsn.
+        $this->syncAanslagenService->fetchAndSyncAanslagen($bsn);
+
+        // Then fetch synced aanslagen through cacheService.
+        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]); // gets object from gateway
+        // $aanslagen                 = ['results' => $this->syncAanslagenService->getAanslagen($bsn)]; // gets object from openbelastingen api
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
