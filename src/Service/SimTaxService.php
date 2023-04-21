@@ -86,12 +86,12 @@ class SimTaxService
 
 
     /**
-     * @param GatewayResourceService $resourceService The Gateway Resource Service.
-     * @param CacheService           $cacheService    The CacheService
-     * @param MappingService         $mappingService  The Mapping Service
-     * @param EntityManagerInterface $entityManager   The Entity Manager.
-     * @param SyncAanslagenService   $syncAanslagenService   The Sync Aanslagen Service.
-     * @param LoggerInterface        $pluginLogger    The plugin version of the logger interface.
+     * @param GatewayResourceService $resourceService      The Gateway Resource Service.
+     * @param CacheService           $cacheService         The CacheService
+     * @param MappingService         $mappingService       The Mapping Service
+     * @param EntityManagerInterface $entityManager        The Entity Manager.
+     * @param SyncAanslagenService   $syncAanslagenService The Sync Aanslagen Service.
+     * @param LoggerInterface        $pluginLogger         The plugin version of the logger interface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
@@ -101,12 +101,12 @@ class SimTaxService
         SyncAanslagenService $syncAanslagenService,
         LoggerInterface $pluginLogger
     ) {
-        $this->resourceService        = $resourceService;
-        $this->cacheService           = $cacheService;
-        $this->mappingService         = $mappingService;
-        $this->entityManager          = $entityManager;
-        $this->syncAanslagenService   = $syncAanslagenService;
-        $this->logger                 = $pluginLogger;
+        $this->resourceService      = $resourceService;
+        $this->cacheService         = $cacheService;
+        $this->mappingService       = $mappingService;
+        $this->entityManager        = $entityManager;
+        $this->syncAanslagenService = $syncAanslagenService;
+        $this->logger               = $pluginLogger;
 
         $this->configuration = [];
         $this->data          = [];
@@ -175,7 +175,7 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
+            $bsn                                                       = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
             $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
         }
 
@@ -191,7 +191,8 @@ class SimTaxService
         $this->syncAanslagenService->fetchAndSyncAanslagen($bsn);
 
         // Then fetch synced aanslagen through cacheService.
-        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]); // gets object from gateway
+        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+        // gets object from gateway
         // $aanslagen                 = ['results' => $this->syncAanslagenService->getAanslagen($bsn)]; // gets object from openbelastingen api
         $aanslagen['vraagbericht'] = $vraagBericht;
 
