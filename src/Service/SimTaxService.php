@@ -434,7 +434,7 @@ class SimTaxService
         $this->entityManager->persist($bezwaarObject);
         $this->entityManager->flush();
 
-        $event = new ActionEvent('object', ['response' => $bezwaarObject->toArray(), 'entity' => $bezwaarSchema]);
+        $event = new ActionEvent('commongateway.object.create', ['response' => $bezwaarObject->toArray(), 'reference' => $bezwaarSchema->getReference()]);
         $this->eventDispatcher->dispatch($event, $event->getType());
 
         $responseArray = $this->mapBezwaarResponse($vraagBericht);
