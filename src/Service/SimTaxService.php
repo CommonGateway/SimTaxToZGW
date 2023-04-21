@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use CommonGateway\OpenBelastingBundle\Service\SyncAanslagenService;
 
 class SimTaxService
 {
@@ -50,6 +51,11 @@ class SimTaxService
     private EntityManagerInterface $entityManager;
 
     /**
+     * @var SyncAanslagenService
+     */
+    private SyncAanslagenService $syncAanslagenService;
+
+    /**
      * The plugin logger.
      *
      * @var LoggerInterface
@@ -80,24 +86,27 @@ class SimTaxService
 
 
     /**
-     * @param GatewayResourceService $resourceService The Gateway Resource Service.
-     * @param CacheService           $cacheService    The CacheService
-     * @param MappingService         $mappingService  The Mapping Service
-     * @param EntityManagerInterface $entityManager   The Entity Manager.
-     * @param LoggerInterface        $pluginLogger    The plugin version of the logger interface.
+     * @param GatewayResourceService $resourceService      The Gateway Resource Service.
+     * @param CacheService           $cacheService         The CacheService
+     * @param MappingService         $mappingService       The Mapping Service
+     * @param EntityManagerInterface $entityManager        The Entity Manager.
+     * @param SyncAanslagenService   $syncAanslagenService The Sync Aanslagen Service.
+     * @param LoggerInterface        $pluginLogger         The plugin version of the logger interface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
         CacheService $cacheService,
         MappingService $mappingService,
         EntityManagerInterface $entityManager,
+        SyncAanslagenService $syncAanslagenService,
         LoggerInterface $pluginLogger
     ) {
-        $this->resourceService = $resourceService;
-        $this->cacheService    = $cacheService;
-        $this->mappingService  = $mappingService;
-        $this->entityManager   = $entityManager;
-        $this->logger          = $pluginLogger;
+        $this->resourceService      = $resourceService;
+        $this->cacheService         = $cacheService;
+        $this->mappingService       = $mappingService;
+        $this->entityManager        = $entityManager;
+        $this->syncAanslagenService = $syncAanslagenService;
+        $this->logger               = $pluginLogger;
 
         $this->configuration = [];
         $this->data          = [];
@@ -166,10 +175,25 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $filter['embedded.belastingplichtige.burgerservicenummer'] = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
+            $bsn = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
-        $aanslagen                 = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+        if (isset($bsn) === false && isset($vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $bsn = $vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
+        }
+
+        if (isset($bsn) === false) {
+            return $this->createResponse(['Error' => "No bsn given."], 501);
+        }
+
+        $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
+
+        // Sync aanslagen from openbelasting api with given bsn.
+        $this->syncAanslagenService->fetchAndSyncAanslagen($bsn);
+
+        // Then fetch synced aanslagen through cacheService.
+        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
