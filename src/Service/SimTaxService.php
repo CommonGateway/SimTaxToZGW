@@ -176,7 +176,6 @@ class SimTaxService
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
             $bsn                                                       = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
-            $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
         }
 
         if (isset($bsn) === false) {
@@ -187,13 +186,14 @@ class SimTaxService
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
 
+        $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
+
         // Sync aanslagen from openbelasting api with given bsn.
         $this->syncAanslagenService->fetchAndSyncAanslagen($bsn);
 
         // Then fetch synced aanslagen through cacheService.
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
-        // gets object from gateway
-        // $aanslagen                 = ['results' => $this->syncAanslagenService->getAanslagen($bsn)]; // gets object from openbelastingen api
+        
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
