@@ -2,10 +2,10 @@
   "title": "GetAanslag",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
-    "soapenv:Body.BZ:synchroonAntwoordBericht.xmlns:BZ": "http://civision.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieSectormodel') }}",
+    "soapenv:Body.BZ:synchroonAntwoordBericht.xmlns:BZ": "http://civision.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel')|lower }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieSectormodel') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.xmlns:BG": "http://www.egem.nl/StUF/sector/bg/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.@xmlns:StUF": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.@xmlns:ZKN": "http://www.egem.nl/StUF/sector/zkn/0201",
