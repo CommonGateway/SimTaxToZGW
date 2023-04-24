@@ -129,13 +129,15 @@ class SimTaxService
 
         $this->logger->info("SimTaxService -> simTaxHandler()");
 
-        if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false) {
-            $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
-            return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
+        if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false
+            && isset($this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht']['ns1:stuurgegevens']) === false) {
+            $this->logger->error('No vraagBericht -> stuurgegevens OR kennisgevingsBericht -> stuurgegevens found in xml body, returning bad request error');
+            return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens OR kennisgevingsBericht -> stuurgegevens found in xml body'], 400)];
         }
 
-        $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'];
-        $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
+        $vraagBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'] ?? null;
+        $kennisgevingsBericht  = $this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht'] ?? null;
+        $stuurGegevens = $vraagBericht['ns1:stuurgegevens'] ?? $kennisgevingsBericht['ns1:stuurgegevens'];
 
         $this->logger->info("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
@@ -147,7 +149,7 @@ class SimTaxService
             $response = $this->getAanslag($vraagBericht);
             break;
         case 'Lk01-BGB':
-            $response = $this->createBezwaar($vraagBericht);
+            $response = $this->createBezwaar($kennisgevingsBericht);
             break;
         default:
             $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
