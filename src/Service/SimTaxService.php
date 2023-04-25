@@ -21,11 +21,15 @@ class SimTaxService
 {
 
     /**
+     * The configuration of the current action.
+     *
      * @var array
      */
     private array $configuration;
 
     /**
+     * The data array from/for the current api call.
+     *
      * @var array
      */
     private array $data;
@@ -249,11 +253,11 @@ class SimTaxService
     /**
      * Create a bezwaar object based on the input.
      *
-     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     * @param array $kennisgevingsBericht The kennisgevingsBericht content from the body of the current request.
      *
      * @return Response
      */
-    public function createBezwaar(array $vraagBericht): Response
+    public function createBezwaar(array $kennisgevingsBericht): Response
     {
         $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['CreateBezwaar'], $this::PLUGIN_NAME);
         if ($mapping === null) {
