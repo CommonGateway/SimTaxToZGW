@@ -25,11 +25,15 @@ class SimTaxService
 {
 
     /**
+     * The configuration of the current action.
+     *
      * @var array
      */
     private array $configuration;
 
     /**
+     * The data array from/for the current api call.
+     *
      * @var array
      */
     private array $data;
@@ -144,12 +148,13 @@ class SimTaxService
         if (isset($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht']['ns1:stuurgegevens']) === false
             && isset($this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht']['ns1:stuurgegevens']) === false
         ) {
-            $this->logger->error('No vraagBericht -> stuurgegevens found in xml body, returning bad request error');
-            return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens found in xml body'], 400)];
+            $this->logger->error('No vraagBericht -> stuurgegevens OR kennisgevingsBericht -> stuurgegevens found in xml body, returning bad request error');
+            return ['response' => $this->createResponse(['Error' => 'No vraagBericht -> stuurgegevens OR kennisgevingsBericht -> stuurgegevens found in xml body'], 400)];
         }
 
-        $vraagBericht  = ($this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'] ?? $this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht']);
-        $stuurGegevens = $vraagBericht['ns1:stuurgegevens'];
+        $vraagBericht         = $this->data['body']['SOAP-ENV:Body']['ns2:vraagBericht'] ?? null;
+        $kennisgevingsBericht = $this->data['body']['SOAP-ENV:Body']['ns2:kennisgevingsBericht'] ?? null;
+        $stuurGegevens        = ($vraagBericht['ns1:stuurgegevens'] ?? $kennisgevingsBericht['ns1:stuurgegevens']);
 
         $this->logger->info("BerichtSoort {$stuurGegevens['ns1:berichtsoort']} & entiteittype {$stuurGegevens['ns1:entiteittype']}");
 
@@ -161,7 +166,7 @@ class SimTaxService
             $response = $this->getAanslag($vraagBericht);
             break;
         case 'Lk01-BGB':
-            $response = $this->createBezwaar($vraagBericht);
+            $response = $this->createBezwaar($kennisgevingsBericht);
             break;
         default:
             $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
@@ -405,11 +410,11 @@ class SimTaxService
     /**
      * Create a bezwaar object based on the input.
      *
-     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     * @param array $kennisgevingsBericht The kennisgevingsBericht content from the body of the current request.
      *
      * @return Response
      */
-    public function createBezwaar(array $vraagBericht): Response
+    public function createBezwaar(array $kennisgevingsBericht): Response
     {
         $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['CreateBezwaar'], $this::PLUGIN_NAME);
         if ($mapping === null) {
@@ -457,8 +462,9 @@ class SimTaxService
     public function createResponse(array $content, int $status): Response
     {
         $this->logger->debug('Creating XML response');
-        $xmlEncoder    = new XmlEncoder(['xml_root_node_name' => 'soapenv:Envelope']);
-        $contentString = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
+        $xmlEncoder                = new XmlEncoder(['xml_root_node_name' => 'soapenv:Envelope']);
+        $content['@xmlns:soapenv'] = 'http://schemas.xmlsoap.org/soap/envelope/';
+        $contentString             = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
 
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
 
