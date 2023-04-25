@@ -185,10 +185,6 @@ class SimTaxService
             $bsn = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
-        if (isset($bsn) === false && isset($vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
-        }
-
         if (isset($bsn) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
