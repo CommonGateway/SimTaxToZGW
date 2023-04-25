@@ -49,7 +49,7 @@
 **Description**
 
 ```php
-public createBezwaar (array $vraagBericht)
+public createBezwaar (array $kennisgevingsBericht)
 ```
 
 Create a bezwaar object based on the input. 
@@ -58,8 +58,8 @@ Create a bezwaar object based on the input.
 
 **Parameters**
 
-* `(array) $vraagBericht`
-: The vraagBericht content from the body of the current request.  
+* `(array) $kennisgevingsBericht`
+: The kennisgevingsBericht content from the body of the current request.  
 
 **Return Values**
 
