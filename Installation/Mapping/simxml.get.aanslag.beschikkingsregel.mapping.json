@@ -2,7 +2,7 @@
   "title": "GetAanslagBeschikkingsregel",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
     "@soortEntiteit": "R",
@@ -32,12 +32,9 @@
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZObjectNummer": "{{ value.wozObjectnummer }}",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@xsi:nil": "true",
     "BSK.BSKWRD.WRD.WRDWOZ.WOZ.omschrijvingWOZObject.@StUF:noValue": "geenWaarde",
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.@soortEntiteit": "R"
-  },
-  "mapping_PutThisBackWhenItWorks": {
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres)|json_encode }}{% else %}\"\"{% endif %}"
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set beschikkingsregelAdres = [] %}{% set beschikkingsregelAdres = beschikkingsregelAdres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", beschikkingsregelAdres)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
-    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD.ADR": "jsonToArray"
+    "BSK.BSKWRD.WRD.WRDWOZ.WOZ.WOZADRHFD": "jsonToArray"
   }
 }
