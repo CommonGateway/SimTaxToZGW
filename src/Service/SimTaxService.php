@@ -12,11 +12,13 @@ use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\MappingService;
+use App\Service\SynchronizationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use App\Entity\ObjectEntity;
+use App\Entity\Entity;
 use App\Event\ActionEvent;
 use DateTime;
 use CommonGateway\OpenBelastingBundle\Service\SyncAanslagenService;
@@ -52,6 +54,11 @@ class SimTaxService
      * @var MappingService
      */
     private MappingService $mappingService;
+
+    /**
+     * @var SynchronizationService
+     */
+    private SynchronizationService $synchronizationService;
 
     /**
      * @var EntityManagerInterface
@@ -99,30 +106,33 @@ class SimTaxService
 
 
     /**
-     * @param GatewayResourceService $resourceService      The Gateway Resource Service.
-     * @param CacheService           $cacheService         The CacheService
-     * @param MappingService         $mappingService       The Mapping Service
-     * @param EntityManagerInterface $entityManager        The Entity Manager.
-     * @param SyncAanslagenService   $syncAanslagenService The Sync Aanslagen Service.
-     * @param LoggerInterface        $pluginLogger         The plugin version of the logger interface.
+     * @param GatewayResourceService $resourceService        The Gateway Resource Service.
+     * @param CacheService           $cacheService           The CacheService
+     * @param MappingService         $mappingService         The Mapping Service
+     * @param SynchronizationService $synchronizationService The Synchronization Service
+     * @param EntityManagerInterface $entityManager          The Entity Manager.
+     * @param SyncAanslagenService   $syncAanslagenService   The Sync Aanslagen Service.
+     * @param LoggerInterface        $pluginLogger           The plugin version of the logger interface.
      * @param EventDispatcherInterface $eventDispatcher The EventDispatcherInterface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
         CacheService $cacheService,
         MappingService $mappingService,
+        SynchronizationService $synchronizationService,
         EntityManagerInterface $entityManager,
         SyncAanslagenService $syncAanslagenService,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $pluginLogger
     ) {
-        $this->resourceService      = $resourceService;
-        $this->cacheService         = $cacheService;
-        $this->mappingService       = $mappingService;
-        $this->entityManager        = $entityManager;
-        $this->syncAanslagenService = $syncAanslagenService;
-        $this->logger               = $pluginLogger;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->resourceService              = $resourceService;
+        $this->cacheService                 = $cacheService;
+        $this->mappingService               = $mappingService;
+        $this->synchronizationService       = $synchronizationService;
+        $this->entityManager                = $entityManager;
+        $this->syncAanslagenService         = $syncAanslagenService;
+        $this->logger                       = $pluginLogger;
+        $this->eventDispatcher              = $eventDispatcher;
 
         $this->configuration = [];
         $this->data          = [];
@@ -320,27 +330,37 @@ class SimTaxService
         if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
             foreach ($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
                 switch ($element['@naam']) {
-                case 'kenmerkNummerBesluit':
-                    isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
-                    break;
-                case 'kenmerkVolgNummerBesluit':
-                    isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
-                    break;
-                case 'codeGriefSoort':
-                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['codeGriefSoort']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['codeGriefSoort'] = $element['#'];
-                    break;
-                case 'keuzeOmschrijvingGrief':
-                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
-                    break;
-                case 'belastingplichtnummer':
-                    isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
-                    break;
-                default:
-                    break;
-                }//end switch
+                    case 'kenmerkNummerBesluit':
+                        isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                        break;
+                    case 'kenmerkVolgNummerBesluit':
+                        isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                        break;
+                    case 'codeGriefSoort':
+                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']) === false &&
+                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
+                        isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief']) === false &&
+                        $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
+                        break;
+                    case 'toelichtingGrief':
+                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                        break;
+                    case 'keuzeOmschrijvingGrief':
+                        isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                        $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                        break;
+                    case 'codeRedenBezwaar':
+                        isset($bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel']) === false &&
+                        $bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel'] = $element['#'];
+                        break;
+                    case 'belastingplichtnummer':
+                        isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
+                        $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
+                        break;
+                    default:
+                        break;
+                    }//end switch
             }//end foreach
         }//end if
 
@@ -406,6 +426,29 @@ class SimTaxService
 
     }//end mapBezwaarResponse()
 
+    /**
+     * Checks if we arent creating 2 bezwaren for one aanslagbiljet (forbidden).
+     * 
+     * @param array  $bezwaarArray 
+     * @param Entity $bezwaarSchema
+     * 
+     * @return bool true if unique, false if not.
+     */
+    private function isBezwaarUnique(array $bezwaarArray, Entity $bezwaarSchema): bool
+    {
+        $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['reference' => 'https://openbelasting.nl/source/openbelasting.pinkapi.source.json']);
+
+        $synchronization = $this->synchronizationService->findSyncBySource($source, $bezwaarSchema, $bezwaarArray['aanslagbiljetnummer'] . $bezwaarArray['aanslagbiljetvolgnummer']);
+
+        // If we already have a sync with a object for given aanslagbiljet return error (cant create 2 bezwaren for one aanslagbiljet).
+        if ($synchronization->getObject() !== null) {
+            return false;
+        }
+
+        return true;
+
+    }//end isBezwaarUnique()
+
 
     /**
      * Create a bezwaar object based on the input.
@@ -426,7 +469,20 @@ class SimTaxService
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
 
-        $bezwaarArray = $this->mapXMLToBezwaar($vraagBericht);
+        $bezwaarArray = $this->mapXMLToBezwaar($kennisgevingsBericht);
+
+        // Check if we are not creating 2 bezwaren for the same aanslagbiljet.
+        // if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
+        //     return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
+        // };
+
+        // Check if we have the needed info.
+        if (isset($bezwaarArray['aanslagregels']) === false) {
+            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create aanslagregel(s)."], 400);
+        };
+        if (isset($bezwaarArray['beschikkingsregels']) === false) {
+            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create beschikkingsregel(s)."], 400);
+        };
 
         if ($bezwaarArray instanceof Response === true) {
             return $bezwaarArray;
@@ -442,7 +498,7 @@ class SimTaxService
         $event = new ActionEvent('commongateway.object.create', ['response' => $bezwaarObject->toArray(), 'reference' => $bezwaarSchema->getReference()]);
         $this->eventDispatcher->dispatch($event, $event->getType());
 
-        $responseArray = $this->mapBezwaarResponse($vraagBericht);
+        $responseArray = $this->mapBezwaarResponse($kennisgevingsBericht);
 
         // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
         // todo
