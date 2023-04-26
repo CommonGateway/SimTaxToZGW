@@ -2,18 +2,19 @@
   "title": "Adres",
   "$id": "https://dowr.simxml.nl/mapping/simxml.adres.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
-    "@soortEntiteit": "F",
-    "postcode": "{{ value.postcode }}",
-    "woonplaatsnaam": "{{ value.woonplaatsnaam }}",
-    "straatnaam": "{{ value.straatnaam }}",
-    "huisnummer": "{{ value.huisnummer }}",
-    "huisletter": "{{ value.huisletter }}",
-    "huisnummertoevoeging": "{{ value.huisnummertoevoeging }}",
-    "aanduidingBijHuisnummer.@xsi:nil": "true",
-    "aanduidingBijHuisnummer.@StUF:noValue": "geenWaarde",
-    "locatieomschrijving": "{{ value.locatieomschrijving }}"
+    "@soortEntiteit": "R",
+    "ADR.@soortEntiteit": "F",
+    "ADR.postcode": "{% if value is defined %}{{ value.postcode }}{% else %}{{ postcode }}{% endif %}",
+    "ADR.woonplaatsnaam": "{% if value is defined %}{{ value.woonplaatsnaam }}{% else %}{{ woonplaatsnaam }}{% endif %}",
+    "ADR.straatnaam": "{% if value is defined %}{{ value.straatnaam }}{% else %}{{ straatnaam }}{% endif %}",
+    "ADR.huisnummer": "{% if value is defined %}{{ value.huisnummer }}{% else %}{{ huisnummer }}{% endif %}",
+    "ADR.huisletter": "{% if value is defined %}{{ value.huisletter }}{% else %}{{ huisletter }}{% endif %}",
+    "ADR.huisnummertoevoeging": "{% if value is defined %}{{ value.huisnummertoevoeging }}{% else %}{{ huisnummertoevoeging }}{% endif %}",
+    "ADR.aanduidingBijHuisnummer.@xsi:nil": "true",
+    "ADR.aanduidingBijHuisnummer.@StUF:noValue": "geenWaarde",
+    "ADR.locatieomschrijving": "{% if value is defined %}{{ value.locatieomschrijving }}{% else %}{{ locatieomschrijving }}{% endif %}"
   }
 }

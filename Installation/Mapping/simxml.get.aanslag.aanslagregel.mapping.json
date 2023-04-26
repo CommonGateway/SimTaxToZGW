@@ -2,7 +2,7 @@
   "title": "GetAanslagAanslagregel",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.aanslagregel.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
     "@soortEntiteit": "R",
@@ -30,12 +30,9 @@
     "ASL.indicatieBezwaar.@xsi:nil": "true",
     "ASL.indicatieBezwaar.@StUF:noValue": "geenWaarde",
     "ASL.belastingplichtnummer": "{{ value.belastingplichtnummer }}",
-    "ASL.ASLADR.@soortEntiteit": "R"
-  },
-  "mapping_PutThisBackWhenItWorks": {
-    "ASL.ASLADR.ADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set adres = [] %}{% set adres = adres|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", adres, true)|json_encode }}{% else %}\"\"{% endif %}"
+    "ASL.ASLADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set aanslagregelAdressen = [] %}{% set aanslagregelAdressen = aanslagregelAdressen|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", aanslagregelAdressen, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
-    "ASL.ASLADR.ADR": "jsonToArray"
+    "ASL.ASLADR": "jsonToArray"
   }
 }

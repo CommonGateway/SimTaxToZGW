@@ -207,10 +207,6 @@ class SimTaxService
             $bsn = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
-        if (isset($bsn) === false && isset($vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $vraagBericht['ns2:body']['ns2:ABT'][0]['ns2:ABTSUBANV']['ns2:PRS']['ns2:bsn-nummer'];
-        }
-
         if (isset($bsn) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
@@ -247,7 +243,7 @@ class SimTaxService
         }
 
         $filter = [];
-        // todo: make these two filters AND and not OR
+        // todo: make these two filters AND and not OR? See how mongoDB filter works!
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
             $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
         }
@@ -258,7 +254,8 @@ class SimTaxService
 
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
         if ($aanslagen['count'] > 1) {
-            // todo return & monolog
+            $this->logger->warning('Found more than 1 aanslag with these filters: ', $filter);
+            return $this->createResponse(['Error' => 'Found more than 1 aanslag with these filters', 'Filters' => $filter], 500);
         } else if ($aanslagen['count'] === 1) {
             $aanslagen['result'] = $aanslagen['results'][0];
         }
