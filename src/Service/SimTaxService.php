@@ -397,12 +397,12 @@ class SimTaxService
         $responseArray = [
             'soapenv:Envelope' => [
                 '@xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
-                'soapenv:Body' => [
+                'soapenv:Body'   => [
                     'StUF:bevestigingsBericht' => [
-                        '@xmlns:StUF' => 'http://www.egem.nl/StUF/StUF0204',
-                        '@xmlns:xsi'  => 'http://www.w3.org/2001/XMLSchema-instance',
+                        '@xmlns:StUF'        => 'http://www.egem.nl/StUF/StUF0204',
+                        '@xmlns:xsi'         => 'http://www.w3.org/2001/XMLSchema-instance',
                         'StUF:stuurgegevens' => [
-                            '@xmlns' => 'http://www.egem.nl/StUF/StUF0204',
+                            '@xmlns'            => 'http://www.egem.nl/StUF/StUF0204',
                             'berichtsoort'      => 'Bv01',
                             'entiteittype'      => 'BGB',
                             'sectormodel'       => 'ef',
