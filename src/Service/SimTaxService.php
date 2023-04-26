@@ -457,11 +457,6 @@ class SimTaxService
      */
     public function createBezwaar(array $kennisgevingsBericht): Response
     {
-        $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['CreateBezwaar'], $this::PLUGIN_NAME);
-        if ($mapping === null) {
-            return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['CreateBezwaar']}."], 501);
-        }
-
         $bezwaarSchema = $this->resourceService->getSchema($this::SCHEMA_REFS['BezwaarAanvraag'], $this::PLUGIN_NAME);
         if ($bezwaarSchema === null) {
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
