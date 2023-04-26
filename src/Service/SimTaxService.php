@@ -9,12 +9,18 @@
 namespace CommonGateway\SimTaxToZGWBundle\Service;
 
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\MappingService;
+use App\Service\SynchronizationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use App\Entity\ObjectEntity;
+use App\Entity\Entity;
+use App\Event\ActionEvent;
+use DateTime;
 use CommonGateway\OpenBelastingBundle\Service\SyncAanslagenService;
 
 class SimTaxService
@@ -50,6 +56,11 @@ class SimTaxService
     private MappingService $mappingService;
 
     /**
+     * @var SynchronizationService
+     */
+    private SynchronizationService $synchronizationService;
+
+    /**
      * @var EntityManagerInterface
      */
     private EntityManagerInterface $entityManager;
@@ -58,6 +69,11 @@ class SimTaxService
      * @var SyncAanslagenService
      */
     private SyncAanslagenService $syncAanslagenService;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * The plugin logger.
@@ -90,27 +106,33 @@ class SimTaxService
 
 
     /**
-     * @param GatewayResourceService $resourceService      The Gateway Resource Service.
-     * @param CacheService           $cacheService         The CacheService
-     * @param MappingService         $mappingService       The Mapping Service
-     * @param EntityManagerInterface $entityManager        The Entity Manager.
-     * @param SyncAanslagenService   $syncAanslagenService The Sync Aanslagen Service.
-     * @param LoggerInterface        $pluginLogger         The plugin version of the logger interface.
+     * @param GatewayResourceService   $resourceService        The Gateway Resource Service.
+     * @param CacheService             $cacheService           The CacheService
+     * @param MappingService           $mappingService         The Mapping Service
+     * @param SynchronizationService   $synchronizationService The Synchronization Service
+     * @param EntityManagerInterface   $entityManager          The Entity Manager.
+     * @param SyncAanslagenService     $syncAanslagenService   The Sync Aanslagen Service.
+     * @param LoggerInterface          $pluginLogger           The plugin version of the logger interface.
+     * @param EventDispatcherInterface $eventDispatcher        The EventDispatcherInterface.
      */
     public function __construct(
         GatewayResourceService $resourceService,
         CacheService $cacheService,
         MappingService $mappingService,
+        SynchronizationService $synchronizationService,
         EntityManagerInterface $entityManager,
         SyncAanslagenService $syncAanslagenService,
+        EventDispatcherInterface $eventDispatcher,
         LoggerInterface $pluginLogger
     ) {
-        $this->resourceService      = $resourceService;
-        $this->cacheService         = $cacheService;
-        $this->mappingService       = $mappingService;
-        $this->entityManager        = $entityManager;
-        $this->syncAanslagenService = $syncAanslagenService;
-        $this->logger               = $pluginLogger;
+        $this->resourceService        = $resourceService;
+        $this->cacheService           = $cacheService;
+        $this->mappingService         = $mappingService;
+        $this->synchronizationService = $synchronizationService;
+        $this->entityManager          = $entityManager;
+        $this->syncAanslagenService   = $syncAanslagenService;
+        $this->logger                 = $pluginLogger;
+        $this->eventDispatcher        = $eventDispatcher;
 
         $this->configuration = [];
         $this->data          = [];
@@ -248,6 +270,185 @@ class SimTaxService
 
 
     /**
+     * Map a bezwaar array based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return Response|array
+     */
+    private function mapXMLToBezwaar(array $vraagBericht)
+    {
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
+            return $this->createResponse(['Error' => "No referentienummer given."], 400);
+        }
+
+        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
+            return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
+        }
+
+        $bezwaarArray = [
+            'aanvraagdatum'           => null,
+            'aanvraagnummer'          => null,
+            'aanslagbiljetnummer'     => null,
+            'aanslagbiljetvolgnummer' => null,
+        ];
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
+            $dateTime = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+            if ($dateTime === false) {
+                $dateTime = DateTime::createFromFormat('Ymd', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+            }
+
+            if ($dateTime === false) {
+                $bezwaarArray['aanvraagdatum'] = null;
+            } else {
+                $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
+            }
+        }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer']) === true) {
+            $bezwaarArray['aanvraagnummer'] = $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
+        }
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true && $vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
+            $bezwaarArray['gehoordWorden'] = true;
+        } else {
+            $bezwaarArray['gehoordWorden'] = false;
+        }
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']) === true) {
+            $bezwaarArray['bijlagen'][0] = [
+                'naamBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:naam'],
+                'typeBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:type'],
+                'bestand'     => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand'],
+            ];
+        }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
+            foreach ($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
+                switch ($element['@naam']) {
+                case 'kenmerkNummerBesluit':
+                    isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                    break;
+                case 'kenmerkVolgNummerBesluit':
+                    isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                    break;
+                case 'codeGriefSoort':
+                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']      = $element['#'];
+                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
+                    break;
+                case 'toelichtingGrief':
+                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                    break;
+                case 'keuzeOmschrijvingGrief':
+                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                    break;
+                case 'codeRedenBezwaar':
+                    isset($bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel'] = $element['#'];
+                    break;
+                case 'belastingplichtnummer':
+                    isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
+                    break;
+                default:
+                    break;
+                }//end switch
+            }//end foreach
+        }//end if
+
+        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $bsn = $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
+        }
+
+        if (isset($bsn) === false) {
+            return $this->createResponse(['Error' => "No bsn given."], 400);
+        }
+
+        foreach ($bezwaarArray as $key => $property) {
+            if ($property === null) {
+                return $this->createResponse(['Error' => "No $key given."], 400);
+            }
+        }//end foreach
+
+        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $bsn;
+
+        return $bezwaarArray;
+
+    }//end mapXMLToBezwaar()
+
+
+    /**
+     * Map a bezwaar response array based on the input.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array
+     */
+    private function mapBezwaarResponse(array $vraagBericht)
+    {
+        $responseArray = [
+            'soapenv:Envelope' => [
+                '@xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
+                'soapenv:Body'   => [
+                    'StUF:bevestigingsBericht' => [
+                        '@xmlns:StUF'        => 'http://www.egem.nl/StUF/StUF0204',
+                        '@xmlns:xsi'         => 'http://www.w3.org/2001/XMLSchema-instance',
+                        'StUF:stuurgegevens' => [
+                            '@xmlns'            => 'http://www.egem.nl/StUF/StUF0204',
+                            'berichtsoort'      => 'Bv01',
+                            'entiteittype'      => 'BGB',
+                            'sectormodel'       => 'ef',
+                            'versieStUF'        => '0204',
+                            'versieSectormodel' => '0204',
+                            'zender'            => ['applicatie' => 'CGS'],
+                            'ontvanger'         => [
+                                'organisatie' => 'SIM',
+                                'applicatie'  => 'simsite',
+                            ],
+                            'referentienummer'  => $vraagBericht['ns1:stuurgegevens']['ns1:referentienummer'],
+                            'tijdstipBericht'   => $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
+                            'bevestiging'       => ['crossRefNummer' => '?'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return $responseArray;
+
+    }//end mapBezwaarResponse()
+
+
+    /**
+     * Checks if we arent creating 2 bezwaren for one aanslagbiljet (forbidden).
+     *
+     * @param array  $bezwaarArray
+     * @param Entity $bezwaarSchema
+     *
+     * @return bool true if unique, false if not.
+     */
+    private function isBezwaarUnique(array $bezwaarArray, Entity $bezwaarSchema): bool
+    {
+        $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['reference' => 'https://openbelasting.nl/source/openbelasting.pinkapi.source.json']);
+
+        $synchronization = $this->synchronizationService->findSyncBySource($source, $bezwaarSchema, $bezwaarArray['aanslagbiljetnummer'].$bezwaarArray['aanslagbiljetvolgnummer']);
+
+        // If we already have a sync with a object for given aanslagbiljet return error (cant create 2 bezwaren for one aanslagbiljet).
+        if ($synchronization->getObject() !== null) {
+            return false;
+        }
+
+        return true;
+
+    }//end isBezwaarUnique()
+
+
+    /**
      * Create a bezwaar object based on the input.
      *
      * @param array $kennisgevingsBericht The kennisgevingsBericht content from the body of the current request.
@@ -256,19 +457,45 @@ class SimTaxService
      */
     public function createBezwaar(array $kennisgevingsBericht): Response
     {
-        $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['CreateBezwaar'], $this::PLUGIN_NAME);
-        if ($mapping === null) {
-            return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['CreateBezwaar']}."], 501);
-        }
-
         $bezwaarSchema = $this->resourceService->getSchema($this::SCHEMA_REFS['BezwaarAanvraag'], $this::PLUGIN_NAME);
         if ($bezwaarSchema === null) {
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
 
+        $bezwaarArray = $this->mapXMLToBezwaar($kennisgevingsBericht);
+
+        // Check if we are not creating 2 bezwaren for the same aanslagbiljet.
+        if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
+            return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
+        };
+
+        // Check if we have the needed info.
+        if (isset($bezwaarArray['aanslagregels']) === false) {
+            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create aanslagregel(s)."], 400);
+        };
+        if (isset($bezwaarArray['beschikkingsregels']) === false) {
+            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create beschikkingsregel(s)."], 400);
+        };
+
+        if ($bezwaarArray instanceof Response === true) {
+            return $bezwaarArray;
+        }
+
+        $bezwaarObject = new ObjectEntity($bezwaarSchema);
+        // $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
+        $bezwaarObject->hydrate($bezwaarArray);
+
+        $this->entityManager->persist($bezwaarObject);
+        $this->entityManager->flush();
+
+        $event = new ActionEvent('commongateway.object.create', ['response' => $bezwaarObject->toArray(), 'reference' => $bezwaarSchema->getReference()]);
+        $this->eventDispatcher->dispatch($event, $event->getType());
+
+        $responseArray = $this->mapBezwaarResponse($kennisgevingsBericht);
+
         // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
         // todo
-        return $this->createResponse(['Lk01-BGB'], 201);
+        return $this->createResponse($responseArray, 201);
 
     }//end createBezwaar()
 
