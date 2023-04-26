@@ -396,13 +396,13 @@ class SimTaxService
     {
         $responseArray = [
             'soapenv:Envelope' => [
-                // '@attributes' => ['xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/'],
+                '@xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
                 'soapenv:Body' => [
                     'StUF:bevestigingsBericht' => [
-                        // '@attributes' => ['xmlns:StUF' => 'http://www.egem.nl/StUF/StUF0204',
-                        // 'xmlns:xsi'  => 'http://www.w3.org/2001/XMLSchema-instance'],
+                        '@xmlns:StUF' => 'http://www.egem.nl/StUF/StUF0204',
+                        '@xmlns:xsi'  => 'http://www.w3.org/2001/XMLSchema-instance',
                         'StUF:stuurgegevens' => [
-                            // '@attributes' => ['xmlns' => 'http://www.egem.nl/StUF/StUF0204'],
+                            '@xmlns' => 'http://www.egem.nl/StUF/StUF0204',
                             'berichtsoort'      => 'Bv01',
                             'entiteittype'      => 'BGB',
                             'sectormodel'       => 'ef',
@@ -472,9 +472,9 @@ class SimTaxService
         $bezwaarArray = $this->mapXMLToBezwaar($kennisgevingsBericht);
 
         // Check if we are not creating 2 bezwaren for the same aanslagbiljet.
-        // if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
-        //     return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
-        // };
+        if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
+            return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
+        };
 
         // Check if we have the needed info.
         if (isset($bezwaarArray['aanslagregels']) === false) {
