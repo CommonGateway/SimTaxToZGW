@@ -7,7 +7,7 @@
   "mapping": {
     "@soortEntiteit": "F",
     "documentNummer": "{{ value.aanslagbiljetnummer }}",
-    "dagtekening": "{{ value.dagtekening }}",
+    "dagtekening": "{{ value.dagtekening|date(\"Ymd\") }}",
     "indicatieBezwaar": "{% if value.bezwaarMogelijk == true %}J{% else %}N{% endif %}",
     "indicatieKwijtschelding": "J",
     "extraElementen.StUF:extraElement.0.@naam": "aanslagBiljetNummer",
@@ -28,8 +28,7 @@
     "extraElementen.StUF:extraElement.7.@naam": "totaalBedragAanslagExclusiefBtw",
     "extraElementen.StUF:extraElement.7.#": "{{ value.totaalbedragAanslag }}",
     "extraElementen.StUF:extraElement.8.@naam": "vervalDatum",
-    "extraElementen.StUF:extraElement.8.@xsi:nil": "true",
-    "extraElementen.StUF:extraElement.8.@StUF:noValue": "geenWaarde",
+    "extraElementen.StUF:extraElement.8.#": "{{ value.dagtekening|date_modify(\"+30 days\")|date(\"Ymd\") }}",
     "extraElementen.StUF:extraElement.9.@naam": "cumSuisAanduiding",
     "extraElementen.StUF:extraElement.9.@xsi:nil": "true",
     "extraElementen.StUF:extraElement.9.@StUF:noValue": "geenWaarde",
