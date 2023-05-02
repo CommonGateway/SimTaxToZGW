@@ -23,8 +23,7 @@
     "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.ontvanger.applicatie": "{{ attribute(attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:zender'), 'ns1:applicatie') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.referentienummer": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:referentienummer') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.tijdstipBericht": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:tijdstipBericht') }}",
-    "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@xsi:nil": "true",
-    "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer.@StUF:noValue": "geenWaarde",
+    "soapenv:Body.BZ:synchroonAntwoordBericht.StUF:stuurgegeven.antwoord.crossRefNummer": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:referentienummer') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.BZ:body.@xmlns": "http://www.egem.nl/StUF/sector/woz/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
     "soapenv:Body.BZ:synchroonAntwoordBericht.BZ:body.OPO": "{% if result is defined %}{% set aanslag = [] %}{% set aanslag = aanslag|merge(result) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.result.mapping.json\", aanslag)|json_encode }}{% else %}\"\"{% endif %}"
   },

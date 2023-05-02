@@ -272,17 +272,17 @@ class SimTaxService
     /**
      * Map a bezwaar array based on the input.
      *
-     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     * @param array $kennisgevingsBericht The vraagBericht content from the body of the current request.
      *
      * @return Response|array
      */
-    private function mapXMLToBezwaar(array $vraagBericht)
+    private function mapXMLToBezwaar(array $kennisgevingsBericht)
     {
-        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
+        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
             return $this->createResponse(['Error' => "No referentienummer given."], 400);
         }
 
-        if (isset($vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
+        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
             return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
         }
 
@@ -293,10 +293,10 @@ class SimTaxService
             'aanslagbiljetvolgnummer' => null,
         ];
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
-            $dateTime = DateTime::createFromFormat('YmdHisu', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
+            $dateTime = DateTime::createFromFormat('YmdHisu', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
             if ($dateTime === false) {
-                $dateTime = DateTime::createFromFormat('Ymd', $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
+                $dateTime = DateTime::createFromFormat('Ymd', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
             }
 
             if ($dateTime === false) {
@@ -306,26 +306,26 @@ class SimTaxService
             }
         }//end if
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer']) === true) {
-            $bezwaarArray['aanvraagnummer'] = $vraagBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer']) === true) {
+            $bezwaarArray['aanvraagnummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
         }
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true && $vraagBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
             $bezwaarArray['gehoordWorden'] = true;
         } else {
             $bezwaarArray['gehoordWorden'] = false;
         }
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']) === true) {
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']) === true) {
             $bezwaarArray['bijlagen'][0] = [
-                'naamBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:naam'],
-                'typeBestand' => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:type'],
-                'bestand'     => $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand'],
+                'naamBestand' => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:naam'],
+                'typeBestand' => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:type'],
+                'bestand'     => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand'],
             ];
         }//end if
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
-            foreach ($vraagBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
+            foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
                 switch ($element['@naam']) {
                 case 'kenmerkNummerBesluit':
                     isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
@@ -361,8 +361,8 @@ class SimTaxService
             }//end foreach
         }//end if
 
-        if (isset($vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $vraagBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === true) {
+            $bsn = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
         }
 
         if (isset($bsn) === false) {
@@ -385,11 +385,11 @@ class SimTaxService
     /**
      * Map a bezwaar response array based on the input.
      *
-     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     * @param array $kennisgevingsBericht The vraagBericht content from the body of the current request.
      *
      * @return array
      */
-    private function mapBezwaarResponse(array $vraagBericht)
+    private function mapBezwaarResponse(array $kennisgevingsBericht)
     {
         $responseArray = [
             'soapenv:Envelope' => [
@@ -410,9 +410,9 @@ class SimTaxService
                                 'organisatie' => 'SIM',
                                 'applicatie'  => 'simsite',
                             ],
-                            'referentienummer'  => $vraagBericht['ns1:stuurgegevens']['ns1:referentienummer'],
-                            'tijdstipBericht'   => $vraagBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
-                            'bevestiging'       => ['crossRefNummer' => '?'],
+                            'referentienummer'  => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer'],
+                            'tijdstipBericht'   => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
+                            'bevestiging'       => ['crossRefNummer' => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']],
                         ],
                     ],
                 ],
