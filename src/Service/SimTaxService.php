@@ -519,14 +519,14 @@ class SimTaxService
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
 
     }//end createResponse()
-
-
+    
+    
     /**
      * Removes CDATA from xml array content
      *
-     * @param array $contentString The content to incorporate in the response
+     * @param string $contentString The content to incorporate in the response
      *
-     * @return array The updated array.
+     * @return string The updated array.
      */
     private function replaceCdata(string $contentString): string
     {
