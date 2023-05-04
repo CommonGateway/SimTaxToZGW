@@ -2,7 +2,7 @@
   "title": "GetAanslag",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "passTrough": false,
   "mapping": {
     "soapenv:Body.BZ:synchroonAntwoordBericht.xmlns:BZ": "http://civision.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel')|lower }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieSectormodel') }}",

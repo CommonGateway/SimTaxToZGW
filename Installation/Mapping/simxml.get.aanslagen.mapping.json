@@ -2,7 +2,7 @@
   "title": "GetAanslagen",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "passTrough": false,
   "mapping": {
     "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
