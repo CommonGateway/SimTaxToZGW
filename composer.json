@@ -18,7 +18,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
-        "commongateway/corebundle": "^1.0.76",
+        "commongateway/corebundle": "^1.0.80",
         "common-gateway/open-belasting-bundle": "^0.0.18"
     },
     "require-dev": {
