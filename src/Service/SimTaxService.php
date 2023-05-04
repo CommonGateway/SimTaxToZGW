@@ -519,8 +519,8 @@ class SimTaxService
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
 
     }//end createResponse()
-    
-    
+
+
     /**
      * Removes CDATA from xml array content
      *
