@@ -514,13 +514,13 @@ class SimTaxService
         $xmlEncoder                = new XmlEncoder(['xml_root_node_name' => 'soapenv:Envelope']);
         $content['@xmlns:soapenv'] = 'http://schemas.xmlsoap.org/soap/envelope/';
         $contentString             = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
-        $contentString = $this->replaceCdata($contentString);
+        $contentString             = $this->replaceCdata($contentString);
 
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
 
     }//end createResponse()
-    
-    
+
+
     /**
      * Removes CDATA from xml array content
      *
@@ -531,17 +531,18 @@ class SimTaxService
     private function replaceCdata(string $contentString): string
     {
         $contentString = str_replace(["<![CDATA[", "]]>"], "", $contentString);
-        
+
         $contentString = preg_replace_callback(
             '/&amp;amp;amp;#([0-9]{3});/',
             function ($matches) {
-                return chr((int)$matches[1]);
+                return chr((int) $matches[1]);
             },
             $contentString
         );
-        
+
         return $contentString;
-    }
+
+    }//end replaceCdata()
 
 
 }//end class
