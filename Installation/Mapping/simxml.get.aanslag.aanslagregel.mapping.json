@@ -28,6 +28,6 @@
     "ASL.ASLADR": "{% if value.embedded.adres is defined and value.embedded.adres is not empty %}{% set aanslagregelAdressen = [] %}{% set aanslagregelAdressen = aanslagregelAdressen|merge(value.embedded.adres) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.adres.mapping.json\", aanslagregelAdressen, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
-    "ASL.ASLADR": "jsonToArray"
+    "ASL.ASLADR": ["jsonToArray", "unsetIfValue=="]
   }
 }

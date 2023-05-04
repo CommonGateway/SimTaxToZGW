@@ -45,7 +45,7 @@
     "BLJBSK": "{% if value.embedded.beschikkingsregels is defined %}{% set beschikkingsregels = [] %}{% set beschikkingsregels = beschikkingsregels|merge(value.embedded.beschikkingsregels) %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslag.beschikkingsregel.mapping.json\", {'listInput': beschikkingsregels, 'aanslag': value}, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
-    "BLJASL": "jsonToArray",
-    "BLJBSK": "jsonToArray"
+    "BLJASL": ["jsonToArray", "unsetIfValue=="],
+    "BLJBSK": ["jsonToArray", "unsetIfValue=="]
   }
 }

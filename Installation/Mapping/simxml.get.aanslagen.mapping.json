@@ -27,6 +27,6 @@
     "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "{% if results is defined %}{{ map(\"https://dowr.simxml.nl/mapping/simxml.get.aanslagen.result.mapping.json\", {'listInput': results, 'vraagbericht': vraagbericht}, true)|json_encode }}{% else %}\"\"{% endif %}"
   },
   "cast": {
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": "jsonToArray"
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.WOZ:body.BLJ": ["jsonToArray", "unsetIfValue=="]
   }
 }
