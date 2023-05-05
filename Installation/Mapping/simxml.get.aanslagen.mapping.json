@@ -2,7 +2,7 @@
   "title": "GetAanslagen",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "passTrough": false,
   "mapping": {
     "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -10,7 +10,7 @@
     "soapenv:Body.WOZ:synchroonAntwoordBericht.@xmlns:WOZ": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel')|lower }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.@xsi:schemaLocation": "http://www.egem.nl/StUF/sector/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel')|lower }}/{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }} woz{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}.msg.xsd",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.@xmlns": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
-    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.berichtsoort": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:berichtsoort') }}",
+    "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.berichtsoort": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:berichtsoort')|replace({'Lv' : 'La'}) }}",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.entiteittype": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:entiteittype') }}",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.sectormodel": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:sectormodel') }}",
     "soapenv:Body.WOZ:synchroonAntwoordBericht.StUF:stuurgegevens.versieStUF": "{{ attribute(attribute(attribute(_context, 'vraagbericht'), 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
