@@ -2,7 +2,7 @@
 /**
  * An example service for adding business logic to your class.
  *
- * @author  Conduction.nl <info@conduction.nl>
+ * @author  Wilco Louwerse <wilco@conduction.nl>, Barry Brands <barry@conduction.nl>, Conduction.nl <info@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  */
 
