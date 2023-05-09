@@ -244,7 +244,9 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
-            $filter['aanslagbiljetnummer'] = explode("-", $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'])[0];
+            $aanslagBiljetNummer = explode("-", $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']);
+            $filter['aanslagbiljetnummer'] = $aanslagBiljetNummer[0];
+            $filter['aanslagbiljetvolgnummer'] = $aanslagBiljetNummer[1] ?? null;
         }
 
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']) === true) {
