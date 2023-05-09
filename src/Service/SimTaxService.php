@@ -244,7 +244,9 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
-            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
+            $aanslagBiljetNummer = explode("-", $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']);
+            $filter['aanslagbiljetnummer'] = $aanslagBiljetNummer[0];
+            $filter['aanslagbiljetvolgnummer'] = $aanslagBiljetNummer[1] ?? null;
         }
 
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']) === true) {
@@ -285,12 +287,18 @@ class SimTaxService
             return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
         }
 
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === false) {
+            return $this->createResponse(['Error' => "No bsn given."], 400);
+        }
+
         $bezwaarArray = [
             'aanvraagdatum'           => null,
             'aanvraagnummer'          => null,
             'aanslagbiljetnummer'     => null,
             'aanslagbiljetvolgnummer' => null,
         ];
+
+        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
 
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
             $dateTime = DateTime::createFromFormat('YmdHisu', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
@@ -309,18 +317,21 @@ class SimTaxService
             $bezwaarArray['aanvraagnummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
         }
 
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
+        $bezwaarArray['gehoordWorden'] = false;
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true
+            && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J'
+        ) {
             $bezwaarArray['gehoordWorden'] = true;
-        } else {
-            $bezwaarArray['gehoordWorden'] = false;
         }
 
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand']) === true) {
-            $bezwaarArray['bijlagen'][0] = [
-                'naamBestand' => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:naam'],
-                'typeBestand' => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:type'],
-                'bestand'     => $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']['ns2:ATT']['ns2:bestand'],
-            ];
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']) === true) {
+            foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'] as $bijlage) {
+                $bezwaarArray['bijlagen'][] = [
+                    'naamBestand' => $bijlage['ns2:ATT']['ns2:naam'],
+                    'typeBestand' => $bijlage['ns2:ATT']['ns2:type'],
+                    'bestand'     => $bijlage['ns2:ATT']['ns2:bestand'],
+                ];
+            }
         }//end if
 
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
@@ -360,21 +371,11 @@ class SimTaxService
             }//end foreach
         }//end if
 
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
-        }
-
-        if (isset($bsn) === false) {
-            return $this->createResponse(['Error' => "No bsn given."], 400);
-        }
-
         foreach ($bezwaarArray as $key => $property) {
             if ($property === null) {
                 return $this->createResponse(['Error' => "No $key given."], 400);
             }
         }//end foreach
-
-        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $bsn;
 
         return $bezwaarArray;
 
@@ -391,28 +392,25 @@ class SimTaxService
     private function mapBezwaarResponse(array $kennisgevingsBericht)
     {
         $responseArray = [
-            'soapenv:Envelope' => [
-                '@xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
-                'soapenv:Body'   => [
-                    'StUF:bevestigingsBericht' => [
-                        '@xmlns:StUF'        => 'http://www.egem.nl/StUF/StUF0204',
-                        '@xmlns:xsi'         => 'http://www.w3.org/2001/XMLSchema-instance',
-                        'StUF:stuurgegevens' => [
-                            '@xmlns'            => 'http://www.egem.nl/StUF/StUF0204',
-                            'berichtsoort'      => 'Bv01',
-                            'entiteittype'      => 'BGB',
-                            'sectormodel'       => 'ef',
-                            'versieStUF'        => '0204',
-                            'versieSectormodel' => '0204',
-                            'zender'            => ['applicatie' => 'CGS'],
-                            'ontvanger'         => [
-                                'organisatie' => 'SIM',
-                                'applicatie'  => 'simsite',
-                            ],
-                            'referentienummer'  => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer'],
-                            'tijdstipBericht'   => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
-                            'bevestiging'       => ['crossRefNummer' => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']],
+            'soapenv:Body' => [
+                'StUF:bevestigingsBericht' => [
+                    '@xmlns:StUF'        => 'http://www.egem.nl/StUF/StUF0204',
+                    '@xmlns:xsi'         => 'http://www.w3.org/2001/XMLSchema-instance',
+                    'StUF:stuurgegevens' => [
+                        '@xmlns'            => 'http://www.egem.nl/StUF/StUF0204',
+                        'berichtsoort'      => 'Bv01',
+                        'entiteittype'      => 'BGB',
+                        'sectormodel'       => 'ef',
+                        'versieStUF'        => '0204',
+                        'versieSectormodel' => '0204',
+                        'zender'            => ['applicatie' => 'CGS'],
+                        'ontvanger'         => [
+                            'organisatie' => 'SIM',
+                            'applicatie'  => 'simsite',
                         ],
+                        'referentienummer'  => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer'],
+                        'tijdstipBericht'   => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht'],
+                        'bevestiging'       => ['crossRefNummer' => $kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']],
                     ],
                 ],
             ],
