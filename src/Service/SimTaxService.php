@@ -296,9 +296,8 @@ class SimTaxService
             'aanslagbiljetvolgnummer' => null,
         ];
 
-        $bezwaarArray['belastingplichtige']['burgerservicenummer'] =
-            $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
-    
+        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
+
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
             $dateTime = DateTime::createFromFormat('YmdHisu', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
             if ($dateTime === false) {
@@ -318,7 +317,8 @@ class SimTaxService
 
         $bezwaarArray['gehoordWorden'] = false;
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true
-            && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J') {
+            && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J'
+        ) {
             $bezwaarArray['gehoordWorden'] = true;
         }
 
@@ -335,36 +335,36 @@ class SimTaxService
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
             foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
                 switch ($element['@naam']) {
-                    case 'kenmerkNummerBesluit':
-                        isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
-                        break;
-                    case 'kenmerkVolgNummerBesluit':
-                        isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
-                        break;
-                    case 'codeGriefSoort':
-                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']) === false &&
-                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']      = $element['#'];
-                        isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief']) === false &&
-                        $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
-                        break;
-                    case 'toelichtingGrief':
-                        isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
-                        $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
-                        break;
-                    case 'keuzeOmschrijvingGrief':
-                        isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
-                        $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
-                        break;
-                    case 'codeRedenBezwaar':
-                        isset($bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel']) === false &&
-                        $bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel'] = $element['#'];
-                        break;
-                    case 'belastingplichtnummer':
-                        isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
-                        $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
-                        break;
-                    default:
-                        break;
+                case 'kenmerkNummerBesluit':
+                    isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                    break;
+                case 'kenmerkVolgNummerBesluit':
+                    isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                    break;
+                case 'codeGriefSoort':
+                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']      = $element['#'];
+                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
+                    break;
+                case 'toelichtingGrief':
+                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                    break;
+                case 'keuzeOmschrijvingGrief':
+                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
+                    break;
+                case 'codeRedenBezwaar':
+                    isset($bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel']) === false &&
+                    $bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel'] = $element['#'];
+                    break;
+                case 'belastingplichtnummer':
+                    isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
+                    $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
+                    break;
+                default:
+                    break;
                 }//end switch
             }//end foreach
         }//end if
@@ -390,7 +390,7 @@ class SimTaxService
     private function mapBezwaarResponse(array $kennisgevingsBericht)
     {
         $responseArray = [
-            'soapenv:Body'   => [
+            'soapenv:Body' => [
                 'StUF:bevestigingsBericht' => [
                     '@xmlns:StUF'        => 'http://www.egem.nl/StUF/StUF0204',
                     '@xmlns:xsi'         => 'http://www.w3.org/2001/XMLSchema-instance',
