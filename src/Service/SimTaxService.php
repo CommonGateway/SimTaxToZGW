@@ -406,57 +406,60 @@ class SimTaxService
 
             // 'aanslagregels' & 'beschikkingsregels' both use the same data structure for 'grieven'
             $grief = [
-                'soortGrief' => $regel['codeGriefSoort'],
-                'toelichtingGrief' =>
-                    ($regel['keuzeOmschrijvingGrief'] ?? '')
-                    . (isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '')
-                    . ($regel['toelichtingGrief'] ?? '')
+                'soortGrief'       => $regel['codeGriefSoort'],
+                'toelichtingGrief' => ($regel['keuzeOmschrijvingGrief'] ?? '').(isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '').($regel['toelichtingGrief'] ?? ''),
             ];
 
             // The first items in $regels array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
             if ($key < count($belastingplichtnummers)) {
                 $belastingplichtnummer = $belastingplichtnummers[$key];
-                
+
                 // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'aanslagregel' with the same $belastingplichtnummer.
                 if (isset($bezwaarArray['aanslagregels'])) {
-                    $aanslagregels = array_filter($bezwaarArray['aanslagregels'], function (array $aanslagregel) use ($belastingplichtnummer) {
-                        return $aanslagregel['belastingplichtnummer'] === $belastingplichtnummer;
-                    });
-                    if (count($aanslagregels) > 0 ) {
+                    $aanslagregels = array_filter(
+                        $bezwaarArray['aanslagregels'],
+                        function (array $aanslagregel) use ($belastingplichtnummer) {
+                            return $aanslagregel['belastingplichtnummer'] === $belastingplichtnummer;
+                        }
+                    );
+                    if (count($aanslagregels) > 0) {
                         $bezwaarArray['aanslagregels'][array_key_first($aanslagregels)]['grieven'][] = $grief;
                         continue;
                     }
                 }
-                
+
                 // If there does not exist an 'aanslagregel' with $belastingplichtnummer yet add it.
                 $bezwaarArray['aanslagregels'][] = [
                     'belastingplichtnummer' => $belastingplichtnummer,
-                    'grieven' => [0 => $grief]
+                    'grieven'               => [0 => $grief],
                 ];
                 continue;
-            }
+            }//end if
 
             // The last items in $regels array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
             if (($key - count($belastingplichtnummers)) < count($beschikkingSleutels)) {
-                $beschikkingSleutel = $beschikkingSleutels[$key - count($belastingplichtnummers)];
-    
+                $beschikkingSleutel = $beschikkingSleutels[($key - count($belastingplichtnummers))];
+
                 // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'beschikkingsregel' with the same $beschikkingSleutel.
                 if (isset($bezwaarArray['beschikkingsregels'])) {
-                    $beschikkingsregels = array_filter($bezwaarArray['beschikkingsregels'], function (array $beschikkingsregel) use ($beschikkingSleutel) {
-                        return $beschikkingsregel['sleutelBeschikkingsregel'] === $beschikkingSleutel;
-                    });
-                    if (count($beschikkingsregels) > 0 ) {
+                    $beschikkingsregels = array_filter(
+                        $bezwaarArray['beschikkingsregels'],
+                        function (array $beschikkingsregel) use ($beschikkingSleutel) {
+                            return $beschikkingsregel['sleutelBeschikkingsregel'] === $beschikkingSleutel;
+                        }
+                    );
+                    if (count($beschikkingsregels) > 0) {
                         $bezwaarArray['beschikkingsregels'][array_key_first($beschikkingsregels)]['grieven'][] = $grief;
                         continue;
                     }
                 }
-    
+
                 // If there does not exist a 'beschikkingsregel' with $beschikkingSleutel yet add it.
                 $bezwaarArray['beschikkingsregels'][] = [
                     'sleutelBeschikkingsregel' => $beschikkingSleutel,
-                    'grieven' => [0 => $grief]
+                    'grieven'                  => [0 => $grief],
                 ];
-            }
+            }//end if
         }//end foreach
 
         foreach ($bezwaarArray as $key => $property) {
