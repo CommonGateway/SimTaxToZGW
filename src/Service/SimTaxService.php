@@ -339,7 +339,8 @@ class SimTaxService
         }//end if
         
         // Keep track of groups of 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' from the 'ns2:extraElementen' in this $regels array
-        $regels                 = [];
+        // We need [0 => []] for isset($regels[count($regels) - 1]['...']) check to work.
+        $regels                 = [0 => []];
         // Keep track of all 'belastingplichtnummers' & 'beschikkingSleutels'
         $belastingplichtnummers = [];
         $beschikkingSleutels    = [];
@@ -362,28 +363,28 @@ class SimTaxService
                     $belastingplichtnummers[] = $element['#'];
                     break;
                 case 'codeGriefSoort':
-                    if (isset($regels[count($regels)]['codeGriefSoort']) === true) {
+                    if (isset($regels[count($regels) - 1]['codeGriefSoort']) === true) {
                         $regels[] = ['codeGriefSoort' => $element['#']];
                         break;
                     }
                 
-                    $regels[count($regels)]['codeGriefSoort'] = $element['#'];
+                    $regels[count($regels) - 1]['codeGriefSoort'] = $element['#'];
                     break;
                 case 'toelichtingGrief':
-                    if (isset($regels[count($regels)]['toelichtingGrief']) === true) {
+                    if (isset($regels[count($regels) - 1]['toelichtingGrief']) === true) {
                         $regels[] = ['toelichtingGrief' => $element['#']];
                         break;
                     }
                 
-                    $regels[count($regels)]['toelichtingGrief'] = $element['#'];
+                    $regels[count($regels) - 1]['toelichtingGrief'] = $element['#'];
                     break;
                 case 'keuzeOmschrijvingGrief':
-                    if (isset($regels[count($regels)]['keuzeOmschrijvingGrief']) === true) {
+                    if (isset($regels[count($regels) - 1]['keuzeOmschrijvingGrief']) === true) {
                         $regels[] = ['keuzeOmschrijvingGrief' => $element['#']];
                         break;
                     }
                 
-                    $regels[count($regels)]['keuzeOmschrijvingGrief'] = $element['#'];
+                    $regels[count($regels) - 1]['keuzeOmschrijvingGrief'] = $element['#'];
                     break;
                 case 'beschikkingSleutel':
                     $beschikkingSleutels[] = $element['#'];
@@ -407,14 +408,14 @@ class SimTaxService
                 0 => [
                     'soortGrief' => $regel['codeGriefSoort'],
                     'toelichtingGrief' =>
-                        $regel['keuzeOmschrijvingGrief'] ?? ''
-                        . $regel['keuzeOmschrijvingGrief'] && $regel['toelichtingGrief'] ? ' - ' : ''
-                        . $regel['toelichtingGrief'] ?? ''
+                        ($regel['keuzeOmschrijvingGrief'] ?? '')
+                        . (isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '')
+                        . ($regel['toelichtingGrief'] ?? '')
                 ]
             ];
             
             // The first items in $regels array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
-            if (count($belastingplichtnummers) <= $key) {
+            if ($key < count($belastingplichtnummers)) {
                 $bezwaarArray['aanslagregels'][] = [
                     'belastingplichtnummer' => $belastingplichtnummers[$key],
                     'grieven' => $grieven
@@ -423,7 +424,7 @@ class SimTaxService
             }
     
             // The last items in $regels array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
-            if (count($beschikkingSleutels) <= ($key - count($belastingplichtnummers))) {
+            if ($key - count($belastingplichtnummers) < count($beschikkingSleutels) ) {
                 $bezwaarArray['beschikkingsregels'][] = [
                     'sleutelBeschikkingsregel' => $beschikkingSleutels[$key - count($belastingplichtnummers)],
                     'grieven' => $grieven
@@ -550,8 +551,6 @@ class SimTaxService
 
         $responseArray = $this->mapBezwaarResponse($kennisgevingsBericht);
 
-        // todo: maybe re-use brkBundle->BrkService->clearXmlNamespace() here to do mapping?
-        // todo
         return $this->createResponse($responseArray, 201);
 
     }//end createBezwaar()
