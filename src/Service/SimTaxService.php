@@ -334,42 +334,66 @@ class SimTaxService
             }
         }//end if
 
+        // todo: groepen van 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' bijhouden in een 'regels' array
+        // todo: alle 'belastingplichtnummer' -s bijhouden in een array & alle 'beschikkingSleutel' -s bijhouden in een array
+        // todo: dan door alle 'belastingplichtnummer' -s heen loopen, voor elk een aanslagregel toevoegen met informatie uit de 'regels' array van boven naar beneden.
+        // todo: als alle aanslagregels geweest zijn verder met door alle 'beschikkingSleutel' -s heen loopen en voor elk een beschikkinsregel opbouwen
+        $regels = [];
+        $belastingplichtnummers = [];
+        $beschikkingSleutels = [];
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === true) {
             foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
                 switch ($element['@naam']) {
-                case 'kenmerkNummerBesluit':
-                    isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
-                    break;
-                case 'kenmerkVolgNummerBesluit':
-                    isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
-                    break;
-                case 'codeGriefSoort':
-                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['soortGrief']      = $element['#'];
-                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief']) === false &&
-                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['soortGrief'] = $element['#'];
-                    break;
-                case 'toelichtingGrief':
-                    isset($bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
-                    break;
-                case 'keuzeOmschrijvingGrief':
-                    isset($bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief']) === false &&
-                    $bezwaarArray['beschikkingsregels'][0]['grieven'][0]['toelichtingGrief'] = $element['#'];
-                    break;
-                case 'codeRedenBezwaar':
-                    isset($bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel']) === false &&
-                    $bezwaarArray['beschikkingsregels'][0]['sleutelBeschikkingsregel'] = $element['#'];
-                    break;
-                case 'belastingplichtnummer':
-                    isset($bezwaarArray['aanslagregels'][0]['belastingplichtnummer']) === false &&
-                    $bezwaarArray['aanslagregels'][0]['belastingplichtnummer'] = $element['#'];
-                    break;
-                default:
-                    break;
+                    case 'kenmerkNummerBesluit':
+                        isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
+                        break;
+                    case 'kenmerkVolgNummerBesluit':
+                        isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
+                        break;
+                    case 'codeRedenBezwaar':
+                            // todo codeRedenBezwaar ?
+                        break;
+                    case 'keuzeOmschrijvingRedenBezwaar':
+                            // todo keuzeOmschrijvingRedenBezwaar ?
+                        break;
+                    case 'belastingplichtnummer':
+                        $belastingplichtnummers[] = $element['#'];
+                        break;
+                    case 'codeGriefSoort':
+                        if (isset($regels[count($regels)]['codeGriefSoort']) === true) {
+                            $regels[] = ['codeGriefSoort' => $element['#']];
+                            break;
+                        }
+                        $regels[count($regels)]['codeGriefSoort'] = $element['#'];
+                        break;
+                    case 'toelichtingGrief':
+                        if (isset($regels[count($regels)]['toelichtingGrief']) === true) {
+                            $regels[] = ['toelichtingGrief' => $element['#']];
+                            break;
+                        }
+                        $regels[count($regels)]['toelichtingGrief'] = $element['#'];
+                        break;
+                    case 'keuzeOmschrijvingGrief':
+                        if (isset($regels[count($regels)]['keuzeOmschrijvingGrief']) === true) {
+                            $regels[] = ['keuzeOmschrijvingGrief' => $element['#']];
+                            break;
+                        }
+                        $regels[count($regels)]['keuzeOmschrijvingGrief'] = $element['#'];
+                        break;
+                    case 'beschikkingSleutel':
+                        $beschikkingSleutels[] = $element['#'];
+                        break;
+                    default:
+                        break;
                 }//end switch
             }//end foreach
         }//end if
+        
+        foreach ($belastingplichtnummers as $key => $belastingplichtnummer) {
+            $bezwaarArray['aanslagregels'][] = [
+                
+            ];
+        }
 
         foreach ($bezwaarArray as $key => $property) {
             if ($property === null) {
