@@ -524,7 +524,7 @@ class SimTaxService
     {
         $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['reference' => 'https://openbelasting.nl/source/openbelasting.pinkapi.source.json']);
 
-        $synchronization = $this->synchronizationService->findSyncBySource($source, $bezwaarSchema, $bezwaarArray['aanslagbiljetnummer'].$bezwaarArray['aanslagbiljetvolgnummer']);
+        $synchronization = $this->synchronizationService->findSyncBySource($source, $bezwaarSchema, $bezwaarArray['aanslagbiljetnummer'].'-'.$bezwaarArray['aanslagbiljetvolgnummer']);
 
         // If we already have a sync with a object for given aanslagbiljet return error (cant create 2 bezwaren for one aanslagbiljet).
         if ($synchronization->getObject() !== null) {
