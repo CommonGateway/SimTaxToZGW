@@ -1,0 +1,25 @@
+{
+  "title": "GetAanslagen",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.5",
+  "passTrough": false,
+  "mapping": {
+    "soapenv:Body.StUF:bevestigingsBericht.@xmlns:StUF": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.@xmlns": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.berichtsoort": "Bv01",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.entiteittype": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:entiteittype') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.sectormodel": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:sectormodel') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.versieStUF": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.versieSectormodel": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:versieSectormodel') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.zender.organisatie": "{{ attribute(attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:ontvanger'), 'ns1:organisatie') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.zender.applicatie": "{{ attribute(attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:ontvanger'), 'ns1:applicatie') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.zender.administratie": "",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.ontvanger.organisatie": "{{ attribute(attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:zender'), 'ns1:organisatie') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.ontvanger.applicatie": "{{ attribute(attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:zender'), 'ns1:applicatie') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.referentienummer": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:referentienummer') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.tijdstipBericht": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:tijdstipBericht') }}",
+    "soapenv:Body.StUF:bevestigingsBericht.StUF:stuurgegevens.bevestiging.crossRefNummer": "{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:referentienummer') }}"
+  }
+}
