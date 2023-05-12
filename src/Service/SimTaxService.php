@@ -557,14 +557,6 @@ class SimTaxService
             return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
         };
 
-        // Check if we have the needed info.
-        if (isset($bezwaarArray['aanslagregels']) === false) {
-            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create aanslagregel(s)."], 400);
-        };
-        if (isset($bezwaarArray['beschikkingsregels']) === false) {
-            return $this->createResponse(['Error' => "To create a bezwaar enough info must be given to create beschikkingsregel(s)."], 400);
-        };
-
         if ($bezwaarArray instanceof Response === true) {
             return $bezwaarArray;
         }
