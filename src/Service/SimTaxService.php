@@ -91,10 +91,10 @@ class SimTaxService
      * The mapping references used in this service.
      */
     private const MAPPING_REFS = [
-        "GetAanslagen"          => "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
-        "GetAanslag"            => "https://dowr.simxml.nl/mapping/simxml.get.aanslag.mapping.json",
-        "PostBezwaarRequest"    => "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.request.mapping.json",
-        "PostBezwaarResponse"   => "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.response.mapping.json",
+        "GetAanslagen"        => "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+        "GetAanslag"          => "https://dowr.simxml.nl/mapping/simxml.get.aanslag.mapping.json",
+        "PostBezwaarRequest"  => "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.request.mapping.json",
+        "PostBezwaarResponse" => "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.response.mapping.json",
     ];
 
     /**
@@ -269,8 +269,8 @@ class SimTaxService
         return $this->createResponse($responseContext, 200);
 
     }//end getAanslag()
-    
-    
+
+
     /**
      * Create a bezwaar object based on the input.
      *
@@ -284,42 +284,42 @@ class SimTaxService
         if ($bezwaarSchema === null) {
             return $this->createResponse(['Error' => "No schema found for {$this::SCHEMA_REFS['BezwaarAanvraag']}."], 501);
         }
-    
+
         $responseMapping = $this->resourceService->getMapping($this::MAPPING_REFS['PostBezwaarResponse'], $this::PLUGIN_NAME);
         if ($responseMapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['PostBezwaarResponse']}."], 501);
         }
-        
+
         $bezwaarArray = $this->mapXMLToBezwaar($kennisgevingsBericht);
-    
+
         if ($bezwaarArray instanceof Response === true) {
             return $bezwaarArray;
         }
-        
+
         // Check if we are not creating 2 bezwaren for the same aanslagbiljet.
         if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
             return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
         };
-        
+
         $bezwaarObject = new ObjectEntity($bezwaarSchema);
         // $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
         $bezwaarObject->hydrate($bezwaarArray);
-        
+
         $this->entityManager->persist($bezwaarObject);
         $this->entityManager->flush();
-        
+
         $event = new ActionEvent('commongateway.object.create', ['response' => $bezwaarObject->toArray(), 'reference' => $bezwaarSchema->getReference()]);
         $this->eventDispatcher->dispatch($event, $event->getType());
-        
+
         // In case of an error from Open Belastingen API
         if (isset($event->getData()['response']['Error'])) {
             return $this->createResponse($event->getData()['response'], 500);
         }
-    
+
         $responseArray = $this->mappingService->mapping($responseMapping, $kennisgevingsBericht);
-        
+
         return $this->createResponse($responseArray, 201);
-        
+
     }//end createBezwaar()
 
 
@@ -512,8 +512,8 @@ class SimTaxService
         return $bezwaarArray;
 
     }//end mapXMLToBezwaar()
-    
-    
+
+
     /**
      * Checks if the given $kennisgevingsBericht array has the minimal required fields for creating a bezwaar.
      *
@@ -526,27 +526,28 @@ class SimTaxService
         if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
             return $this->createResponse(['Error' => "No referentienummer given."], 400);
         }
-    
+
         if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
             return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
         }
-    
+
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 400);
         }
-    
+
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === false) {
             return $this->createResponse(['Error' => "No 'ns2:extraElementen' given."], 400);
         }
-        
+
         return null;
+
     }//end bezwaarRequiredFields()
-    
-    
+
+
     private function mapExtraElementen(): array
     {
-    
-    }
+
+    }//end mapExtraElementen()
 
 
     /**
