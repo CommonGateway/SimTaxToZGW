@@ -435,6 +435,11 @@ class SimTaxService
                 break;
             }//end switch
         }//end foreach
+        
+        // Make sure to remove aanslagbiljetvolgnummer before creating Bezwaar
+        if (isset($bezwaarArray['aanslagbiljetnummer'])) {
+            $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
+        }
 
         // Loop through all $regels groups and add them to $bezwaarArray 'aanslagregels' or 'beschikkingsregels'
         foreach ($regels as $key => $regel) {
