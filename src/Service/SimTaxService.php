@@ -435,7 +435,7 @@ class SimTaxService
                 break;
             }//end switch
         }//end foreach
-        
+
         // Make sure to remove aanslagbiljetvolgnummer before creating Bezwaar
         if (isset($bezwaarArray['aanslagbiljetnummer'])) {
             $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
