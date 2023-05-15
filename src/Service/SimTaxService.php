@@ -431,10 +431,10 @@ class SimTaxService
      */
     private function mapExtraElementen(array $bezwaarArray, array $kennisgevingsBericht): array
     {
-        // Keep track of groups of 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' from the 'ns2:extraElementen' in this $regelData['regels'] array
-        // We need 'regels' => [0 => []] for the first isset($regelData['regels'][count($regelData['regels']) - 1]['...']) check to work.
+        // Keep track of groups of 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' from the 'ns2:extraElementen' in this $regelsData['regels'] array
+        // We need 'regels' => [0 => []] for the first isset($regelsData['regels'][count($regelsData['regels']) - 1]['...']) check to work.
         // Also keep track of all 'belastingplichtnummers' & 'beschikkingSleutels'
-        $regelData = [
+        $regelsData = [
             'regels' => [0 => []],
             'belastingplichtnummers' => [],
             'beschikkingSleutels' => [],
@@ -444,12 +444,12 @@ class SimTaxService
         $bezwaarArray['aanslagbiljetnummer'] = null;
         $bezwaarArray['aanslagbiljetvolgnummer'] = null;
         
-        // Get all data from the extraElementen and add it to $bezwaarArray or $regelData.
+        // Get all data from the extraElementen and add it to $bezwaarArray or $regelsData.
         foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
             if (!is_array($element)) {
                 $element['#'] = $element;
             }
-            $this->getExtraElementData($bezwaarArray, $regelData, $element);
+            $this->getExtraElementData($bezwaarArray, $regelsData, $element);
         }
     
         // Make sure to remove aanslagbiljetvolgnummer from the aanslagbiljetnummer before creating a Bezwaar
@@ -457,21 +457,21 @@ class SimTaxService
             $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
         }
     
-        return $this->mapRegelData($bezwaarArray, $regelData);
+        return $this->mapRegelsData($bezwaarArray, $regelsData);
         
     }//end mapExtraElementen()
     
     
     /**
-     * A function used to map a single extra element and add it to $bezwaarArray or add it to $regelData to be handled later.
+     * A function used to map a single extra element and add it to $bezwaarArray or add it to $regelsData to be handled later.
      *
      * @param array $bezwaarArray The array we save the mapped data in.
-     * @param array $regelData An array used to correctly map all aanslagRegels & beschikkingsregels later on.
+     * @param array $regelsData An array used to correctly map all aanslagRegels & beschikkingsregels later on.
      * @param array $element The data of a single element from the extraElementen array.
      *
      * @return void
      */
-    private function getExtraElementData(array &$bezwaarArray, array &$regelData, array $element)
+    private function getExtraElementData(array &$bezwaarArray, array &$regelsData, array $element)
     {
         switch ($element['@naam']) {
             case 'kenmerkNummerBesluit':
@@ -485,34 +485,34 @@ class SimTaxService
             case 'keuzeOmschrijvingRedenBezwaar': // todo keuzeOmschrijvingRedenBezwaar ?
                 break;
             case 'belastingplichtnummer':
-                $regelData['belastingplichtnummers'][] = $element['#'];
+                $regelsData['belastingplichtnummers'][] = $element['#'];
                 break;
             case 'codeGriefSoort':
-                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['codeGriefSoort']) === true) {
-                    $regelData['regels'][] = ['codeGriefSoort' => $element['#']];
+                if (isset($regelsData['regels'][(count($regelsData['regels']) - 1)]['codeGriefSoort']) === true) {
+                    $regelsData['regels'][] = ['codeGriefSoort' => $element['#']];
                     break;
                 }
             
-                $regelData['regels'][(count($regelData['regels']) - 1)]['codeGriefSoort'] = $element['#'];
+                $regelsData['regels'][(count($regelsData['regels']) - 1)]['codeGriefSoort'] = $element['#'];
                 break;
             case 'toelichtingGrief':
-                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['toelichtingGrief']) === true) {
-                    $regelData['regels'][] = ['toelichtingGrief' => $element['#']];
+                if (isset($regelsData['regels'][(count($regelsData['regels']) - 1)]['toelichtingGrief']) === true) {
+                    $regelsData['regels'][] = ['toelichtingGrief' => $element['#']];
                     break;
                 }
             
-                $regelData['regels'][(count($regelData['regels']) - 1)]['toelichtingGrief'] = $element['#'];
+                $regelsData['regels'][(count($regelsData['regels']) - 1)]['toelichtingGrief'] = $element['#'];
                 break;
             case 'keuzeOmschrijvingGrief':
-                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['keuzeOmschrijvingGrief']) === true) {
-                    $regelData['regels'][] = ['keuzeOmschrijvingGrief' => $element['#']];
+                if (isset($regelsData['regels'][(count($regelsData['regels']) - 1)]['keuzeOmschrijvingGrief']) === true) {
+                    $regelsData['regels'][] = ['keuzeOmschrijvingGrief' => $element['#']];
                     break;
                 }
             
-                $regelData['regels'][(count($regelData['regels']) - 1)]['keuzeOmschrijvingGrief'] = $element['#'];
+                $regelsData['regels'][(count($regelsData['regels']) - 1)]['keuzeOmschrijvingGrief'] = $element['#'];
                 break;
             case 'beschikkingSleutel':
-                $regelData['beschikkingSleutels'][] = $element['#'];
+                $regelsData['beschikkingSleutels'][] = $element['#'];
                 break;
             default:
                 break;
@@ -521,17 +521,17 @@ class SimTaxService
     
     
     /**
-     * todo:
+     * Map the data for aanslagRegels & beschikkingsregels with the information we got fromt he extraElementen, stored in the $regelsData array.
      *
-     * @param array $bezwaarArray
-     * @param array $regelData
+     * @param array $bezwaarArray The array we saved the mapped data in. This should contain the mapping done so far.
+     * @param array $regelsData An array used to correctly map all aanslagRegels & beschikkingsregels.
      *
-     * @return array
+     * @return array The updated $bezwaarArray with applied mapping for aanslagRegels & beschikkingsregels.
      */
-    private function mapRegelData(array $bezwaarArray, array $regelData): array
+    private function mapRegelsData(array $bezwaarArray, array $regelsData): array
     {
-        // Loop through all $regelData['regels'] groups and add them to $bezwaarArray 'aanslagregels' or 'beschikkingsregels'
-        foreach ($regelData['regels'] as $key => $regel) {
+        // Loop through all $regelsData['regels'] groups and add them to $bezwaarArray 'aanslagregels' or 'beschikkingsregels'
+        foreach ($regelsData['regels'] as $key => $regel) {
             if (isset($regel['codeGriefSoort']) === false) {
                 // If we ever get here the structure of the XML request body extraElementen is most likely incorrect.
                 // (or what we were told, how to map this, was incorrect)
@@ -542,62 +542,103 @@ class SimTaxService
             // 'aanslagregels' & 'beschikkingsregels' both use the same data structure for 'grieven'
             $grief = [
                 'soortGrief'       => $regel['codeGriefSoort'],
-                'toelichtingGrief' => ($regel['keuzeOmschrijvingGrief'] ?? '').(isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '').($regel['toelichtingGrief'] ?? ''),
+                'toelichtingGrief' => ($regel['keuzeOmschrijvingGrief'] ?? '')
+                    .(isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '')
+                    .($regel['toelichtingGrief'] ?? ''),
             ];
-        
-            // TODO: duplicate code, make this a function.
-            // The first items in $regelData['regels'] array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
-            if ($key < count($regelData['belastingplichtnummers'])) {
-                $belastingplichtnummer = $regelData['belastingplichtnummers'][$key];
             
-                // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'aanslagregel' with the same $belastingplichtnummer.
-                if (isset($bezwaarArray['aanslagregels'])) {
-                    $aanslagregels = array_filter(
-                        $bezwaarArray['aanslagregels'],
-                        function (array $aanslagregel) use ($belastingplichtnummer) {
-                            return $aanslagregel['belastingplichtnummer'] === $belastingplichtnummer;
-                        }
-                    );
-                    if (count($aanslagregels) > 0) {
-                        $bezwaarArray['aanslagregels'][array_key_first($aanslagregels)]['grieven'][] = $grief;
-                        continue;
-                    }
-                }
-            
-                // If there does not exist an 'aanslagregel' with $belastingplichtnummer yet add it.
-                $bezwaarArray['aanslagregels'][] = [
-                    'belastingplichtnummer' => $belastingplichtnummer,
-                    'grieven'               => [0 => $grief],
-                ];
+            // The first items in $regelsData['regels'] array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
+            if ($key < count($regelsData['belastingplichtnummers'])) {
+                $bezwaarArray = $this->mapAanslagRegel(
+                    $bezwaarArray,
+                    $regelsData['belastingplichtnummers'][$key],
+                    $grief
+                );
+                
                 continue;
             }//end if
-    
-            // TODO: duplicate code, make this a function.
-            // The last items in $regelData['regels'] array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
-            if (($key - count($regelData['belastingplichtnummers'])) < count($regelData['beschikkingSleutels'])) {
-                $beschikkingSleutel = $regelData['beschikkingSleutels'][($key - count($regelData['belastingplichtnummers']))];
-            
-                // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'beschikkingsregel' with the same $beschikkingSleutel.
-                if (isset($bezwaarArray['beschikkingsregels'])) {
-                    $beschikkingsregels = array_filter(
-                        $bezwaarArray['beschikkingsregels'],
-                        function (array $beschikkingsregel) use ($beschikkingSleutel) {
-                            return $beschikkingsregel['sleutelBeschikkingsregel'] === $beschikkingSleutel;
-                        }
-                    );
-                    if (count($beschikkingsregels) > 0) {
-                        $bezwaarArray['beschikkingsregels'][array_key_first($beschikkingsregels)]['grieven'][] = $grief;
-                        continue;
-                    }
-                }
-            
-                // If there does not exist a 'beschikkingsregel' with $beschikkingSleutel yet add it.
-                $bezwaarArray['beschikkingsregels'][] = [
-                    'sleutelBeschikkingsregel' => $beschikkingSleutel,
-                    'grieven'                  => [0 => $grief],
-                ];
+
+            // The last items in $regelsData['regels'] array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
+            if (($key - count($regelsData['belastingplichtnummers'])) < count($regelsData['beschikkingSleutels'])) {
+                $bezwaarArray = $this->mapBeschikkingsRegel(
+                    $bezwaarArray,
+                    $regelsData['beschikkingSleutels'][($key - count($regelsData['belastingplichtnummers']))],
+                    $grief
+                );
             }//end if
         }//end foreach
+        
+        return $bezwaarArray;
+    }//end mapRegelsData()
+    
+    
+    /**
+     * Maps the data of a single $grief to the aanslagRegel with $belastingplichtnummer.
+     *
+     * @param array $bezwaarArray The array we saved the mapped data in. This should contain the mapping done so far.
+     * @param string $belastingplichtnummer The belastingplichtnummer for this aanslagRegel.
+     * @param array $grief The data of the grief to add to the aanslagRegel with $belastingplichtnummer.
+     *
+     * @return array The updated $bezwaarArray with applied mapping for a single aanslagRegel.
+     */
+    private function mapAanslagRegel(array $bezwaarArray, string $belastingplichtnummer, array $grief): array
+    {
+        // Check if we already have an aanslagregel with this $belastingplichtnummer, if so add this $grief to that aanslagregel.
+        if (isset($bezwaarArray['aanslagregels'])) {
+            $aanslagregels = array_filter(
+                $bezwaarArray['aanslagregels'],
+                function (array $aanslagregel) use ($belastingplichtnummer) {
+                    return $aanslagregel['belastingplichtnummer'] === $belastingplichtnummer;
+                }
+            );
+            if (count($aanslagregels) > 0) {
+                $bezwaarArray['aanslagregels'][array_key_first($aanslagregels)]['grieven'][] = $grief;
+                
+                return $bezwaarArray;
+            }
+        }
+    
+        // If there does not exist an 'aanslagregel' with $belastingplichtnummer yet add it.
+        $bezwaarArray['aanslagregels'][] = [
+            'belastingplichtnummer' => $belastingplichtnummer,
+            'grieven'               => [0 => $grief],
+        ];
+        
+        return $bezwaarArray;
+    }
+    
+    
+    /**
+     * Maps the data of a single $grief to the beschikkingsRegel with $beschikkingSleutel.
+     *
+     * @param array $bezwaarArray The array we saved the mapped data in. This should contain the mapping done so far.
+     * @param string $beschikkingSleutel The beschikkingSleutel for this beschikkingsRegel.
+     * @param array $grief The data of the grief to add to the beschikkingsRegel with $beschikkingSleutel.
+     *
+     * @return array The updated $bezwaarArray with applied mapping for a single beschikkingsRegel.
+     */
+    private function mapBeschikkingsRegel(array $bezwaarArray, string $beschikkingSleutel, array $grief): array
+    {
+        // Check if we already have a beschikkingsregel with this $beschikkingSleutel, if so add this $grief to that beschikkingsregel.
+        if (isset($bezwaarArray['beschikkingsregels'])) {
+            $beschikkingsregels = array_filter(
+                $bezwaarArray['beschikkingsregels'],
+                function (array $beschikkingsregel) use ($beschikkingSleutel) {
+                    return $beschikkingsregel['sleutelBeschikkingsregel'] === $beschikkingSleutel;
+                }
+            );
+            if (count($beschikkingsregels) > 0) {
+                $bezwaarArray['beschikkingsregels'][array_key_first($beschikkingsregels)]['grieven'][] = $grief;
+                
+                return $bezwaarArray;
+            }
+        }
+    
+        // If there does not exist a 'beschikkingsregel' with $beschikkingSleutel yet add it.
+        $bezwaarArray['beschikkingsregels'][] = [
+            'sleutelBeschikkingsregel' => $beschikkingSleutel,
+            'grieven'                  => [0 => $grief],
+        ];
         
         return $bezwaarArray;
     }
