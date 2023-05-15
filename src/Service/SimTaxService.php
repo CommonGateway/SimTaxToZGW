@@ -337,39 +337,33 @@ class SimTaxService
             return $errorResponse;
         }
 
-        $bezwaarArray = [
-            'aanvraagdatum'           => null,
-            'aanvraagnummer'          => null,
-            'aanslagbiljetnummer'     => null,
-            'aanslagbiljetvolgnummer' => null,
-        ];
-
-        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
-
+        $bezwaarArray = [];
+        $bezwaarArray['aanvraagnummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'] ?? null;
+    
+        $bezwaarArray['aanvraagdatum'] = null;
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']) === true) {
             $dateTime = DateTime::createFromFormat('YmdHisu', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
             if ($dateTime === false) {
                 $dateTime = DateTime::createFromFormat('Ymd', $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagdatum']);
             }
-
-            if ($dateTime === false) {
-                $bezwaarArray['aanvraagdatum'] = null;
-            } else {
+        
+            if ($dateTime !== false) {
                 $bezwaarArray['aanvraagdatum'] = $dateTime->format('Y-m-d');
             }
         }//end if
-
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer']) === true) {
-            $bezwaarArray['aanvraagnummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:aanvraagnummer'];
-        }
-
+    
         $bezwaarArray['gehoordWorden'] = false;
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden']) === true
             && $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:indGehoordWorden'] === 'J'
         ) {
             $bezwaarArray['gehoordWorden'] = true;
         }
-
+        
+        $bezwaarArray = $this->mapExtraElementen($bezwaarArray, $kennisgevingsBericht);
+        
+        $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
+    
+        // Bijlagen
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']) === true) {
             foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'] as $bijlage) {
                 $bezwaarArray['bijlagen'][] = [
@@ -380,86 +374,182 @@ class SimTaxService
             }
         }//end if
 
-        // Keep track of groups of 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' from the 'ns2:extraElementen' in this $regels array
-        // We need [0 => []] for isset($regels[count($regels) - 1]['...']) check to work.
-        $regels = [0 => []];
-        // Keep track of all 'belastingplichtnummers' & 'beschikkingSleutels'
-        $belastingplichtnummers = [];
-        $beschikkingSleutels    = [];
+        // As long as we always map with a default value = null for each key, we should catch any missing properties (extraElementen for example)
+        foreach ($bezwaarArray as $key => $property) {
+            if ($property === null) {
+                return $this->createResponse(['Error' => "No $key given."], 400);
+            }
+        }//end foreach
 
+        return $bezwaarArray;
+
+    }//end mapXMLToBezwaar()
+
+
+    /**
+     * Checks if the given $kennisgevingsBericht array has the minimal (some of the) required fields for creating a bezwaar.
+     * Most other fields we get from extraElementen we check later on and not through this function.
+     *
+     * @param array $kennisgevingsBericht The kennisgevinsBericht content from the body of the current request.
+     *
+     * @return Response|null Null if everything is in order, an error Response if any required fields are missing.
+     */
+    private function bezwaarRequiredFields(array $kennisgevingsBericht): ?Response
+    {
+        // We do not send this to Pink Api, we only need this to return a correct xml response.
+        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
+            return $this->createResponse(['Error' => "No referentienummer given."], 400);
+        }
+    
+        // We do not send this to Pink Api, we only need this to return a correct xml response.
+        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
+            return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
+        }
+    
+        // We check this here, because this is a way to return a more specific error message.
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === false) {
+            return $this->createResponse(['Error' => "No bsn given."], 400);
+        }
+    
+        // We check this here, because this is a way to return a more specific error message.
+        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === false) {
+            return $this->createResponse(['Error' => "No 'ns2:extraElementen' given."], 400);
+        }
+
+        return null;
+
+    }//end bezwaarRequiredFields()
+    
+    
+    /**
+     * Map the extraElementen for a bezwaar creation request. Using the $kennisgevingsBericht as input.
+     *
+     * @param array $bezwaarArray The array we saved the mapped data in. This should contain the mapping done so far.
+     * @param array $kennisgevingsBericht The kennisgevinsBericht content from the body of the current request.
+     *
+     * @return array The updated $bezwaarArray with applied mapping for extraElementen.
+     */
+    private function mapExtraElementen(array $bezwaarArray, array $kennisgevingsBericht): array
+    {
+        // Keep track of groups of 'codeGriefSoort', 'toelichtingGrief' & 'keuzeOmschrijvingGrief' from the 'ns2:extraElementen' in this $regelData['regels'] array
+        // We need 'regels' => [0 => []] for the first isset($regelData['regels'][count($regelData['regels']) - 1]['...']) check to work.
+        // Also keep track of all 'belastingplichtnummers' & 'beschikkingSleutels'
+        $regelData = [
+            'regels' => [0 => []],
+            'belastingplichtnummers' => [],
+            'beschikkingSleutels' => [],
+        ];
+    
+        // Make sure to always add these, so we return an error response if they are still null after handling all extraElementen
+        $bezwaarArray['aanslagbiljetnummer'] = null;
+        $bezwaarArray['aanslagbiljetvolgnummer'] = null;
+        
+        // Get all data from the extraElementen and add it to $bezwaarArray or $regelData.
         foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement'] as $element) {
-            switch ($element['@naam']) {
+            if (!is_array($element)) {
+                $element['#'] = $element;
+            }
+            $this->getExtraElementData($bezwaarArray, $regelData, $element);
+        }
+    
+        // Make sure to remove aanslagbiljetvolgnummer from the aanslagbiljetnummer before creating a Bezwaar
+        if (isset($bezwaarArray['aanslagbiljetnummer'])) {
+            $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
+        }
+    
+        return $this->mapRegelData($bezwaarArray, $regelData);
+        
+    }//end mapExtraElementen()
+    
+    
+    /**
+     * A function used to map a single extra element and add it to $bezwaarArray or add it to $regelData to be handled later.
+     *
+     * @param array $bezwaarArray The array we save the mapped data in.
+     * @param array $regelData An array used to correctly map all aanslagRegels & beschikkingsregels later on.
+     * @param array $element The data of a single element from the extraElementen array.
+     *
+     * @return void
+     */
+    private function getExtraElementData(array &$bezwaarArray, array &$regelData, array $element)
+    {
+        switch ($element['@naam']) {
             case 'kenmerkNummerBesluit':
                 isset($bezwaarArray['aanslagbiljetnummer']) === false && $bezwaarArray['aanslagbiljetnummer'] = $element['#'];
                 break;
             case 'kenmerkVolgNummerBesluit':
                 isset($bezwaarArray['aanslagbiljetvolgnummer']) === false && $bezwaarArray['aanslagbiljetvolgnummer'] = $element['#'];
                 break;
-            case 'codeRedenBezwaar':
-                // todo codeRedenBezwaar ?
+            case 'codeRedenBezwaar': // todo codeRedenBezwaar ?
                 break;
-            case 'keuzeOmschrijvingRedenBezwaar':
-                // todo keuzeOmschrijvingRedenBezwaar ?
+            case 'keuzeOmschrijvingRedenBezwaar': // todo keuzeOmschrijvingRedenBezwaar ?
                 break;
             case 'belastingplichtnummer':
-                $belastingplichtnummers[] = $element['#'];
+                $regelData['belastingplichtnummers'][] = $element['#'];
                 break;
             case 'codeGriefSoort':
-                if (isset($regels[(count($regels) - 1)]['codeGriefSoort']) === true) {
-                    $regels[] = ['codeGriefSoort' => $element['#']];
+                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['codeGriefSoort']) === true) {
+                    $regelData['regels'][] = ['codeGriefSoort' => $element['#']];
                     break;
                 }
-
-                $regels[(count($regels) - 1)]['codeGriefSoort'] = $element['#'];
+            
+                $regelData['regels'][(count($regelData['regels']) - 1)]['codeGriefSoort'] = $element['#'];
                 break;
             case 'toelichtingGrief':
-                if (isset($regels[(count($regels) - 1)]['toelichtingGrief']) === true) {
-                    $regels[] = ['toelichtingGrief' => $element['#']];
+                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['toelichtingGrief']) === true) {
+                    $regelData['regels'][] = ['toelichtingGrief' => $element['#']];
                     break;
                 }
-
-                $regels[(count($regels) - 1)]['toelichtingGrief'] = $element['#'];
+            
+                $regelData['regels'][(count($regelData['regels']) - 1)]['toelichtingGrief'] = $element['#'];
                 break;
             case 'keuzeOmschrijvingGrief':
-                if (isset($regels[(count($regels) - 1)]['keuzeOmschrijvingGrief']) === true) {
-                    $regels[] = ['keuzeOmschrijvingGrief' => $element['#']];
+                if (isset($regelData['regels'][(count($regelData['regels']) - 1)]['keuzeOmschrijvingGrief']) === true) {
+                    $regelData['regels'][] = ['keuzeOmschrijvingGrief' => $element['#']];
                     break;
                 }
-
-                $regels[(count($regels) - 1)]['keuzeOmschrijvingGrief'] = $element['#'];
+            
+                $regelData['regels'][(count($regelData['regels']) - 1)]['keuzeOmschrijvingGrief'] = $element['#'];
                 break;
             case 'beschikkingSleutel':
-                $beschikkingSleutels[] = $element['#'];
+                $regelData['beschikkingSleutels'][] = $element['#'];
                 break;
             default:
                 break;
-            }//end switch
-        }//end foreach
-
-        // Make sure to remove aanslagbiljetvolgnummer before creating Bezwaar
-        if (isset($bezwaarArray['aanslagbiljetnummer'])) {
-            $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
-        }
-
-        // Loop through all $regels groups and add them to $bezwaarArray 'aanslagregels' or 'beschikkingsregels'
-        foreach ($regels as $key => $regel) {
+        }//end switch
+    }//end getExtraElementData()
+    
+    
+    /**
+     * todo:
+     *
+     * @param array $bezwaarArray
+     * @param array $regelData
+     *
+     * @return array
+     */
+    private function mapRegelData(array $bezwaarArray, array $regelData): array
+    {
+        // Loop through all $regelData['regels'] groups and add them to $bezwaarArray 'aanslagregels' or 'beschikkingsregels'
+        foreach ($regelData['regels'] as $key => $regel) {
             if (isset($regel['codeGriefSoort']) === false) {
                 // If we ever get here the structure of the XML request body extraElementen is most likely incorrect.
                 // (or what we were told, how to map this, was incorrect)
                 $this->logger->error("Something went wrong while creating a 'bezwaar', found a 'regel' without a 'codeGriefSoort'.");
                 continue;
             }
-
+        
             // 'aanslagregels' & 'beschikkingsregels' both use the same data structure for 'grieven'
             $grief = [
                 'soortGrief'       => $regel['codeGriefSoort'],
                 'toelichtingGrief' => ($regel['keuzeOmschrijvingGrief'] ?? '').(isset($regel['keuzeOmschrijvingGrief']) && isset($regel['toelichtingGrief']) ? ' - ' : '').($regel['toelichtingGrief'] ?? ''),
             ];
-
-            // The first items in $regels array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
-            if ($key < count($belastingplichtnummers)) {
-                $belastingplichtnummer = $belastingplichtnummers[$key];
-
+        
+            // TODO: duplicate code, make this a function.
+            // The first items in $regelData['regels'] array are always 'aanslagregels', equal to the amount of 'belastingplichtnummers' are present.
+            if ($key < count($regelData['belastingplichtnummers'])) {
+                $belastingplichtnummer = $regelData['belastingplichtnummers'][$key];
+            
                 // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'aanslagregel' with the same $belastingplichtnummer.
                 if (isset($bezwaarArray['aanslagregels'])) {
                     $aanslagregels = array_filter(
@@ -473,7 +563,7 @@ class SimTaxService
                         continue;
                     }
                 }
-
+            
                 // If there does not exist an 'aanslagregel' with $belastingplichtnummer yet add it.
                 $bezwaarArray['aanslagregels'][] = [
                     'belastingplichtnummer' => $belastingplichtnummer,
@@ -481,11 +571,12 @@ class SimTaxService
                 ];
                 continue;
             }//end if
-
-            // The last items in $regels array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
-            if (($key - count($belastingplichtnummers)) < count($beschikkingSleutels)) {
-                $beschikkingSleutel = $beschikkingSleutels[($key - count($belastingplichtnummers))];
-
+    
+            // TODO: duplicate code, make this a function.
+            // The last items in $regelData['regels'] array are always 'beschikkingsregels', equal to the amount of 'sleutelBeschikkingsregel' are present.
+            if (($key - count($regelData['belastingplichtnummers'])) < count($regelData['beschikkingSleutels'])) {
+                $beschikkingSleutel = $regelData['beschikkingSleutels'][($key - count($regelData['belastingplichtnummers']))];
+            
                 // Check if we are dealing with multiple (2nd and more) 'grieven' for one 'beschikkingsregel' with the same $beschikkingSleutel.
                 if (isset($bezwaarArray['beschikkingsregels'])) {
                     $beschikkingsregels = array_filter(
@@ -499,7 +590,7 @@ class SimTaxService
                         continue;
                     }
                 }
-
+            
                 // If there does not exist a 'beschikkingsregel' with $beschikkingSleutel yet add it.
                 $bezwaarArray['beschikkingsregels'][] = [
                     'sleutelBeschikkingsregel' => $beschikkingSleutel,
@@ -507,52 +598,9 @@ class SimTaxService
                 ];
             }//end if
         }//end foreach
-
-        foreach ($bezwaarArray as $key => $property) {
-            if ($property === null) {
-                return $this->createResponse(['Error' => "No $key given."], 400);
-            }
-        }//end foreach
-
+        
         return $bezwaarArray;
-
-    }//end mapXMLToBezwaar()
-
-
-    /**
-     * Checks if the given $kennisgevingsBericht array has the minimal required fields for creating a bezwaar.
-     *
-     * @param array $kennisgevingsBericht The kennisgevinsBericht content from the body of the current request.
-     *
-     * @return Response|null Null if everything is in order, an error Response if any required fields are missing.
-     */
-    private function bezwaarRequiredFields(array $kennisgevingsBericht): ?Response
-    {
-        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:referentienummer']) === false) {
-            return $this->createResponse(['Error' => "No referentienummer given."], 400);
-        }
-
-        if (isset($kennisgevingsBericht['ns1:stuurgegevens']['ns1:tijdstipBericht']) === false) {
-            return $this->createResponse(['Error' => "No tijdstipBericht given."], 400);
-        }
-
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer']) === false) {
-            return $this->createResponse(['Error' => "No bsn given."], 400);
-        }
-
-        if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:extraElementen']['ns1:extraElement']) === false) {
-            return $this->createResponse(['Error' => "No 'ns2:extraElementen' given."], 400);
-        }
-
-        return null;
-
-    }//end bezwaarRequiredFields()
-
-
-    private function mapExtraElementen(): array
-    {
-
-    }//end mapExtraElementen()
+    }
 
 
     /**
