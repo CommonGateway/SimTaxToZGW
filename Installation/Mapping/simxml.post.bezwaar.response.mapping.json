@@ -1,8 +1,8 @@
 {
-  "title": "GetAanslagen",
-  "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslagen.mapping.json",
+  "title": "PostBezwaarResponse",
+  "$id": "https://dowr.simxml.nl/mapping/simxml.post.bezwaar.response.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "passTrough": false,
   "mapping": {
     "soapenv:Body.StUF:bevestigingsBericht.@xmlns:StUF": "http://www.egem.nl/StUF/StUF{{ attribute(attribute(_context, 'ns1:stuurgegevens'), 'ns1:versieStUF') }}",
