@@ -357,10 +357,16 @@ class SimTaxService
         $bezwaarArray = $this->mapExtraElementen($bezwaarArray, $kennisgevingsBericht);
 
         $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
-
+    
         // Bijlagen
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']) === true) {
-            foreach ($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'] as $bijlage) {
+            $bijlagen = [];
+            if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']["ns2:ATT"]) === true) {
+                $bijlagen[] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'];
+            } else {
+                $bijlagen = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'];
+            }
+            foreach ($bijlagen as $bijlage) {
                 $bezwaarArray['bijlagen'][] = [
                     'naamBestand' => $bijlage['ns2:ATT']['ns2:naam'],
                     'typeBestand' => $bijlage['ns2:ATT']['ns2:type'],
