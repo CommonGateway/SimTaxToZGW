@@ -296,11 +296,6 @@ class SimTaxService
             return $bezwaarArray;
         }
 
-        // Check if we are not creating 2 bezwaren for the same aanslagbiljet.
-        if ($this->isBezwaarUnique($bezwaarArray, $bezwaarSchema) === false) {
-            return $this->createResponse(['Error' => "Bezwaar for aanslagbiljetnummer/kenmerkNummerBesluit: {$bezwaarArray['aanslagbiljetnummer']} and aanslagbiljetvolgnummer/kenmerkVolgNummerBesluit: {$bezwaarArray['aanslagbiljetvolgnummer']} already exists."], 400);
-        };
-
         $bezwaarObject = new ObjectEntity($bezwaarSchema);
         // $bezwaarArray  = $this->mappingService->mapping($mapping, $vraagBericht);
         $bezwaarObject->hydrate($bezwaarArray);
@@ -647,30 +642,6 @@ class SimTaxService
         return $bezwaarArray;
 
     }//end mapBeschikkingsRegel()
-
-
-    /**
-     * Checks if we arent creating 2 bezwaren for one aanslagbiljet (forbidden).
-     *
-     * @param array  $bezwaarArray
-     * @param Entity $bezwaarSchema
-     *
-     * @return bool true if unique, false if not.
-     */
-    private function isBezwaarUnique(array $bezwaarArray, Entity $bezwaarSchema): bool
-    {
-        $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['reference' => 'https://openbelasting.nl/source/openbelasting.pinkapi.source.json']);
-
-        $synchronization = $this->synchronizationService->findSyncBySource($source, $bezwaarSchema, $bezwaarArray['aanslagbiljetnummer'].'-'.$bezwaarArray['aanslagbiljetvolgnummer']);
-
-        // If we already have a sync with a object for given aanslagbiljet return error (cant create 2 bezwaren for one aanslagbiljet).
-        if ($synchronization->getObject() !== null) {
-            return false;
-        }
-
-        return true;
-
-    }//end isBezwaarUnique()
 
 
     /**
