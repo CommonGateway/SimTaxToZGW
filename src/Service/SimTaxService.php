@@ -604,7 +604,8 @@ class SimTaxService
 
         // If there does not exist an 'aanslagregel' with $belastingplichtnummer yet add it.
         $bezwaarArray['aanslagregels'][] = [
-            'belastingplichtnummer' => $belastingplichtnummer,
+            // Make sure belastingplichtnummer has leading zero's when the integer has less than 13 digits.
+            'belastingplichtnummer' => sprintf("%013d", $belastingplichtnummer),
             'grieven'               => [0 => $grief],
         ];
 
