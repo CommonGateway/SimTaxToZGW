@@ -245,9 +245,7 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
-            $aanslagBiljetNummer               = explode("-", $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']);
-            $filter['aanslagbiljetnummer']     = $aanslagBiljetNummer[0];
-            $filter['aanslagbiljetvolgnummer'] = $aanslagBiljetNummer[1] ?? null;
+            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
         }
 
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']) === true) {
@@ -452,11 +450,6 @@ class SimTaxService
             }
 
             $this->getExtraElementData($bezwaarArray, $regelsData, $element);
-        }
-
-        // Make sure to remove aanslagbiljetvolgnummer from the aanslagbiljetnummer before creating a Bezwaar
-        if (isset($bezwaarArray['aanslagbiljetnummer'])) {
-            $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
         }
 
         return $this->mapRegelsData($bezwaarArray, $regelsData);
