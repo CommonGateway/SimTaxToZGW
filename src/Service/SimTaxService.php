@@ -245,9 +245,7 @@ class SimTaxService
 
         $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
-            $aanslagBiljetNummer               = explode("-", $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']);
-            $filter['aanslagbiljetnummer']     = $aanslagBiljetNummer[0];
-            $filter['aanslagbiljetvolgnummer'] = $aanslagBiljetNummer[1] ?? null;
+            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
         }
 
         if (isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']) === true) {
@@ -357,7 +355,7 @@ class SimTaxService
         $bezwaarArray = $this->mapExtraElementen($bezwaarArray, $kennisgevingsBericht);
 
         $bezwaarArray['belastingplichtige']['burgerservicenummer'] = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBPRSBZW']['ns2:PRS']['ns2:bsn-nummer'];
-    
+
         // Bijlagen
         if (isset($kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT']) === true) {
             $bijlagen = [];
@@ -366,6 +364,7 @@ class SimTaxService
             } else {
                 $bijlagen = $kennisgevingsBericht['ns2:body']['ns2:BGB']['ns2:BGBATT'];
             }
+
             foreach ($bijlagen as $bijlage) {
                 $bezwaarArray['bijlagen'][] = [
                     'naamBestand' => $bijlage['ns2:ATT']['ns2:naam'],
@@ -452,11 +451,6 @@ class SimTaxService
             }
 
             $this->getExtraElementData($bezwaarArray, $regelsData, $element);
-        }
-
-        // Make sure to remove aanslagbiljetvolgnummer from the aanslagbiljetnummer before creating a Bezwaar
-        if (isset($bezwaarArray['aanslagbiljetnummer'])) {
-            $bezwaarArray['aanslagbiljetnummer'] = explode('-', $bezwaarArray['aanslagbiljetnummer'])[0];
         }
 
         return $this->mapRegelsData($bezwaarArray, $regelsData);

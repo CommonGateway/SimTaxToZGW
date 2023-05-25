@@ -2,7 +2,7 @@
   "title": "GetAanslagResult",
   "$id": "https://dowr.simxml.nl/mapping/simxml.get.aanslag.result.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "passTrough": false,
   "mapping": {
     "@soortEntiteit": "F",
@@ -12,7 +12,7 @@
     "toelichting.@StUF:noValue": "geenWaarde",
     "indicatieBetalingsregeling.@xsi:nil": "true",
     "indicatieBetalingsregeling.@StUF:noValue": "geenWaarde",
-    "aanslagBiljetNummer": "{{ aanslagbiljetnummer ~ '-' ~ aanslagbiljetvolgnummer }}",
+    "aanslagBiljetNummer": "{{ aanslagbiljetnummer }}",
     "aanslagBiljetVolgNummer": "{{ aanslagbiljetvolgnummer }}",
     "vorderingsBedrag.@xsi:nil": "true",
     "vorderingsBedrag.@StUF:noValue": "geenWaarde",
