@@ -52,7 +52,7 @@ class InstallationService implements InstallerInterface
      *
      * @return void
      */
-    public function install()
+    public function install(): void
     {
         $this->logger->debug("SimTaxToZGWBundle -> Install()");
 
@@ -66,7 +66,7 @@ class InstallationService implements InstallerInterface
      *
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         $this->logger->debug("SimTaxToZGWBundle -> Update()");
 
@@ -80,7 +80,7 @@ class InstallationService implements InstallerInterface
      *
      * @return void
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->logger->debug("SimTaxToZGWBundle -> Uninstall()");
 
