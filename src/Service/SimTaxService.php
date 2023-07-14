@@ -21,6 +21,7 @@ use App\Entity\ObjectEntity;
 use App\Entity\Entity;
 use App\Event\ActionEvent;
 use DateTime;
+use DateInterval;
 use CommonGateway\OpenBelastingBundle\Service\SyncAanslagenService;
 
 class SimTaxService
@@ -202,20 +203,26 @@ class SimTaxService
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslagen']}."], 501);
         }
-
-        $filter = [];
-        if (isset($vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === true) {
-            $bsn = $vraagBericht['ns2:body']['ns2:BLJ'][0]['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
+    
+        if (isset($vraagBericht['ns2:body']['ns2:BLJ']) === false) {
+            return $this->createResponse(['Error' => "No ns2:BLJ found in ns2:body"], 400);
         }
-
-        if (isset($bsn) === false) {
+        
+        // Fail-safe in case only one ns2:BLJ is given
+        if (isset($vraagBericht['ns2:body']['ns2:BLJ'][1]) === false) {
+            $blj = $vraagBericht['ns2:body']['ns2:BLJ'];
+            $vraagBericht['ns2:body']['ns2:BLJ'] = [];
+            $vraagBericht['ns2:body']['ns2:BLJ'][] = $blj;
+        }
+    
+        $filter = $this->getAanslagenFilter($vraagBericht);
+        
+        if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
 
-        $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
-
         // Sync aanslagen from openbelasting api with given bsn.
-        $this->syncAanslagenService->fetchAndSyncAanslagen($bsn);
+        $this->syncAanslagenService->fetchAndSyncAanslagen($filter['embedded.belastingplichtige.burgerservicenummer']);
 
         // Then fetch synced aanslagen through cacheService.
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
@@ -227,6 +234,47 @@ class SimTaxService
         return $this->createResponse($responseContext, 200);
 
     }//end getAanslagen()
+    
+    
+    /**
+     * Generate the correct filter for getting aanslag objects from MongoDB with the cacheService.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     *
+     * @return array The filters we need to call cacheService->searchObjects with.
+     */
+    private function getAanslagenFilter(array $vraagBericht): array
+    {
+        $filter = [];
+        foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $blj) {
+            if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
+                continue;
+            }
+            if (isset($bsn) === false) {
+                $bsn = $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
+            }
+            if (isset($bsn) === true
+                && $bsn === $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']
+                && isset($blj['ns2:extraElementen']['ns1:extraElement']['#'])
+            ) {
+                $filter['belastingJaar'][] = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
+            }
+        }
+    
+        // If we have no belastingJaar in the request use this and last year for filtering
+        if (isset($filter['belastingJaar']) === false) {
+            $dateTime = new DateTime();
+            $filter['belastingJaar'][] = $dateTime->format('Y');
+            $dateTime->add(DateInterval::createFromDateString('-1 year'));
+            $filter['belastingJaar'][] = $dateTime->format('Y');
+        }
+    
+        if (isset($bsn)) {
+            $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
+        }
+        
+        return $filter;
+    }
 
 
     /**
