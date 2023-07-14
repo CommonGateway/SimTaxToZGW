@@ -203,20 +203,20 @@ class SimTaxService
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslagen']}."], 501);
         }
-    
+
         if (isset($vraagBericht['ns2:body']['ns2:BLJ']) === false) {
             return $this->createResponse(['Error' => "No ns2:BLJ found in ns2:body"], 400);
         }
-        
+
         // Fail-safe in case only one ns2:BLJ is given
         if (isset($vraagBericht['ns2:body']['ns2:BLJ'][1]) === false) {
-            $blj = $vraagBericht['ns2:body']['ns2:BLJ'];
-            $vraagBericht['ns2:body']['ns2:BLJ'] = [];
+            $blj                                   = $vraagBericht['ns2:body']['ns2:BLJ'];
+            $vraagBericht['ns2:body']['ns2:BLJ']   = [];
             $vraagBericht['ns2:body']['ns2:BLJ'][] = $blj;
         }
-    
+
         $filter = $this->getAanslagenFilter($vraagBericht);
-        
+
         if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
@@ -234,8 +234,8 @@ class SimTaxService
         return $this->createResponse($responseContext, 200);
 
     }//end getAanslagen()
-    
-    
+
+
     /**
      * Generate the correct filter for getting aanslag objects from MongoDB with the cacheService.
      *
@@ -250,9 +250,11 @@ class SimTaxService
             if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
                 continue;
             }
+
             if (isset($bsn) === false) {
                 $bsn = $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer'];
             }
+
             if (isset($bsn) === true
                 && $bsn === $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']
                 && isset($blj['ns2:extraElementen']['ns1:extraElement']['#'])
@@ -260,21 +262,22 @@ class SimTaxService
                 $filter['belastingJaar'][] = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
             }
         }
-    
+
         // If we have no belastingJaar in the request use this and last year for filtering
         if (isset($filter['belastingJaar']) === false) {
-            $dateTime = new DateTime();
+            $dateTime                  = new DateTime();
             $filter['belastingJaar'][] = $dateTime->format('Y');
             $dateTime->add(DateInterval::createFromDateString('-1 year'));
             $filter['belastingJaar'][] = $dateTime->format('Y');
         }
-    
+
         if (isset($bsn)) {
             $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
         }
-        
+
         return $filter;
-    }
+
+    }//end getAanslagenFilter()
 
 
     /**
