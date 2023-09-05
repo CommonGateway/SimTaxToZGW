@@ -246,7 +246,8 @@ class SimTaxService
     private function getAanslagenFilter(array $vraagBericht): array
     {
         $filter = [];
-        foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $blj) {
+        $minYear = $maxYear = null;
+        foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $key => $blj) {
             if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
                 continue;
             }
@@ -259,8 +260,25 @@ class SimTaxService
                 && $bsn === $blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']
                 && isset($blj['ns2:extraElementen']['ns1:extraElement']['#'])
             ) {
-                $filter['belastingJaar'][] = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
+                // First key should be the min year
+                if ($key === array_key_first($vraagBericht['ns2:body']['ns2:BLJ'])) {
+                    $minYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
+                }
+                // Last key should be the max year
+                if ($key === array_key_last($vraagBericht['ns2:body']['ns2:BLJ'])) {
+                    $maxYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
+                }
             }
+        }
+        
+        if (isset($minYear) === true && isset($maxYear) === true && $minYear <= $maxYear) {
+            $year = $minYear;
+            while ($year <= $maxYear) {
+                $filter['belastingJaar'][] = $year;
+                $year++;
+            }
+        } else {
+            $this->logger->warning('Could not find a min and max year for bsn: '.($bsn ?? '').' Using last 2 years instead');
         }
 
         // If we have no belastingJaar in the request use this and last year for filtering
