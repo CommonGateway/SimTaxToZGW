@@ -245,7 +245,7 @@ class SimTaxService
      */
     private function getAanslagenFilter(array $vraagBericht): array
     {
-        $filter = [];
+        $filter  = [];
         $minYear = $maxYear = null;
         foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $key => $blj) {
             if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
@@ -264,13 +264,14 @@ class SimTaxService
                 if ($key === array_key_first($vraagBericht['ns2:body']['ns2:BLJ'])) {
                     $minYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
                 }
+
                 // Last key should be the max year
                 if ($key === array_key_last($vraagBericht['ns2:body']['ns2:BLJ'])) {
                     $maxYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
                 }
             }
-        }
-        
+        }//end foreach
+
         if (isset($minYear) === true && isset($maxYear) === true && $minYear <= $maxYear) {
             $year = $minYear;
             while ($year <= $maxYear) {
