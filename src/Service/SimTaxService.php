@@ -226,13 +226,14 @@ class SimTaxService
 
         // Then fetch synced aanslagen through cacheService.
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
-    
+
         // TODO: this is a temporary workaround at the request of SIM
         // This will set the Aanslag "bezwaarMogelijk" to false if one of it's "aanslagregels" has "bezwaarMogelijk" set to false.
         foreach ($aanslagen['results'] as $aanslag) {
             if (isset($aanslag['embedded']['aanslagregels']) === false) {
                 continue;
             }
+
             foreach ($aanslag['embedded']['aanslagregels'] as $aanslagregel) {
                 if ($aanslagregel['bezwaarMogelijk'] == false) {
                     $aanslag['bezwaarMogelijk'] = false;
@@ -240,7 +241,7 @@ class SimTaxService
                 }
             }
         }
-        
+
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
