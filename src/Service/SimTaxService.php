@@ -245,7 +245,6 @@ class SimTaxService
      */
     private function getAanslagenFilter(array $vraagBericht): array
     {
-        $filter  = [];
         $minYear = $maxYear = null;
         foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $key => $blj) {
             if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
@@ -271,18 +270,15 @@ class SimTaxService
                 }
             }
         }//end foreach
-
-        if (isset($minYear) === true && isset($maxYear) === true && $minYear <= $maxYear) {
-            $year = $minYear;
-            while ($year <= $maxYear) {
-                $filter['belastingJaar'][] = $year;
-                $year++;
-            }
+    
+        if (isset($minYear) === true) {
+            $filter = $this->getMinMaxYearFilter($vraagBericht, $minYear, $maxYear);
         } else {
-            $this->logger->warning('Could not find a min and max year for bsn: '.($bsn ?? '').' Using last 2 years instead');
+            $this->logger->warning('Could not find a minimal year for bsn: '.($bsn ?? '').' Using current & last year instead for getting Aanslagen');
+            $filter  = [];
         }
 
-        // If we have no belastingJaar in the request use this and last year for filtering
+        // If we have no (min/max) belastingJaar filter in the request use this year and the last year for filtering instead.
         if (isset($filter['belastingJaar']) === false) {
             $dateTime                  = new DateTime();
             $filter['belastingJaar'][] = $dateTime->format('Y');
@@ -297,6 +293,38 @@ class SimTaxService
         return $filter;
 
     }//end getAanslagenFilter()
+    
+    
+    /**
+     * Gets the correct min/max belastingJaar filter for getting aanslag objects from MongoDB with the cacheService.
+     *
+     * @param array $vraagBericht The vraagBericht content from the body of the current request.
+     * @param string $minYear The minYear we found from the vraagBericht content.
+     * @param string|null $maxYear The maxYear we found from the vraagBericht content or null.
+     *
+     * @return array The filter array with correct min/max belastingJaar filter.
+     */
+    private function getMinMaxYearFilter(array $vraagBericht, string $minYear, ?string $maxYear): array
+    {
+        $filter  = [];
+        
+        // If no max year was given in the request, we default max year to the current year.
+        if (isset($maxYear) === false || ($maxYear === $minYear && count($vraagBericht['ns2:body']['ns2:BLJ']) === 1)) {
+            $maxYear = new DateTime();
+            $maxYear = $maxYear->format('Y');
+        }
+    
+        if ($minYear <= $maxYear) {
+            // Now add all years to the belastingJaar filter.
+            $year = $minYear;
+            while ($year <= $maxYear) {
+                $filter['belastingJaar'][] = (string) $year;
+                $year++;
+            }
+        }
+        
+        return $filter;
+    }
 
 
     /**
