@@ -226,7 +226,7 @@ class SimTaxService
 
         // Make sure we order correctly
         $filter['_order']['belastingJaar'] = 'desc';
-        
+
         // Then fetch synced aanslagen through cacheService.
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
 
