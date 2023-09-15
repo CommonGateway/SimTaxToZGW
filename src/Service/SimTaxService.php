@@ -224,6 +224,9 @@ class SimTaxService
         // Sync aanslagen from openbelasting api with given bsn.
         $this->syncAanslagenService->fetchAndSyncAanslagen($filter['embedded.belastingplichtige.burgerservicenummer']);
 
+        // Make sure we order correctly
+        $filter['_order']['belastingJaar'] = 'desc';
+        
         // Then fetch synced aanslagen through cacheService.
         $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
 
