@@ -41,8 +41,8 @@ Create a bezwaar object based on the input.
 
 **Parameters**
 
-*   `(array) $kennisgevingsBericht`
-    : The kennisgevingsBericht content from the body of the current request.
+* `(array) $kennisgevingsBericht`
+  : The kennisgevingsBericht content from the body of the current request.
 
 **Return Values**
 
@@ -62,10 +62,10 @@ Creates a response based on content.
 
 **Parameters**
 
-*   `(array) $content`
-    : The content to incorporate in the response
-*   `(int) $status`
-    : The status code of the response
+* `(array) $content`
+  : The content to incorporate in the response
+* `(int) $status`
+  : The status code of the response
 
 **Return Values**
 
@@ -85,8 +85,8 @@ Get a single aanslag object based on the input.
 
 **Parameters**
 
-*   `(array) $vraagBericht`
-    : The vraagBericht content from the body of the current request.
+* `(array) $vraagBericht`
+  : The vraagBericht content from the body of the current request.
 
 **Return Values**
 
@@ -106,8 +106,8 @@ Get aanslagen objects based on the input.
 
 **Parameters**
 
-*   `(array) $vraagBericht`
-    : The vraagBericht content from the body of the current request.
+* `(array) $vraagBericht`
+  : The vraagBericht content from the body of the current request.
 
 **Return Values**
 
@@ -127,10 +127,10 @@ An example handler that is triggered by an action.
 
 **Parameters**
 
-*   `(array) $data`
-    : The data array
-*   `(array) $configuration`
-    : The configuration array
+* `(array) $data`
+  : The data array
+* `(array) $configuration`
+  : The configuration array
 
 **Return Values**
 
