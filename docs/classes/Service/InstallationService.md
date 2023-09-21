@@ -26,10 +26,10 @@ The constructor
 
 **Parameters**
 
-*   `(\EntityManagerInterface) $entityManager`
-    : The entity manager.
-*   `(\LoggerInterface) $installationLogger`
-    : The installation logger.
+* `(\EntityManagerInterface) $entityManager`
+  : The entity manager.
+* `(\LoggerInterface) $installationLogger`
+  : The installation logger.
 
 **Return Values**
 
