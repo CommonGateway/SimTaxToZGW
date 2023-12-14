@@ -19,7 +19,7 @@ description:
   en:
     localisedName: null
     genericName: This bundle contains the necessary logic for converting Sim Form loads xml to ZGW messages. For the purpose of setting up tax returns and objections.
-    shortDescription: SimTaxToZGW
+    shortDescription: SimTaxToZGWBundle
     longDescription: null
     documentation: null
     apiDocumentation: null
@@ -30,7 +30,7 @@ description:
   nl:
     localisedName: null
     genericName: Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar ZGW berichten. Ten behoeve van het inrichten van belasting aangiften en bezwaren.
-    shortDescription: SimTaxToZGW
+    shortDescription: SimTaxToZGWBundle
     longDescription: null
     documentation: null
     apiDocumentation: null
