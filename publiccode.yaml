@@ -18,9 +18,9 @@ softwareType: softwareAddon
 description:
   en:
     localisedName: null
-    genericName: This bundle contains the necessary logic for converting Sim Form loads xml to ZGW messages. For the purpose of setting up tax returns and objections.
+    genericName: This bundle contains the necessary logic for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa.
     shortDescription: SimTaxToZGWBundle
-    longDescription: This bundle contains the necessary logic for converting Sim Form loads xml to ZGW messages. For the purpose of setting up tax returns and objections.
+    longDescription: This bundle contains the necessary logic (schema's, mappings and code) for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa. For the purpose of setting up tax returns and objections.
     documentation: null
     apiDocumentation: null
     features: []
@@ -29,9 +29,9 @@ description:
     awards: []
   nl:
     localisedName: null
-    genericName: Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar ZGW berichten. Ten behoeve van het inrichten van belasting aangiften en bezwaren.
+    genericName: Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom.
     shortDescription: SimTaxToZGWBundle
-    longDescription: Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar ZGW berichten. Ten behoeve van het inrichten van belasting aangiften en bezwaren.
+    longDescription: Deze bundle bevat de benodigde logica (schema's, mappings en code) voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom. Ten behoeve van het inrichten van belasting aangiften en bezwaren.
     documentation: null
     apiDocumentation: null
     features: []
