@@ -18,23 +18,25 @@ softwareType: softwareAddon
 description:
   en:
     localisedName: null
-    genericName: This bundle contains the necessary logic for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa.
-    shortDescription: SimTaxToZGWBundle
-    longDescription: This bundle contains the necessary logic (schema's, mappings and code) for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa. For the purpose of setting up tax returns and objections.
+    genericName: null
+    shortDescription: "This bundle contains the necessary logic for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa."
+    longDescription: "This bundle contains the necessary logic (schema's, mappings and code) for converting Sim Form belastingen xml to PINK Open Belastingen API and vice versa. For the purpose of setting up tax returns and objections."
     documentation: null
     apiDocumentation: null
-    features: []
+    features:
+      - Common Ground Gateway Plugin
     screenshots: []
     videos: []
     awards: []
   nl:
     localisedName: null
-    genericName: Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom.
-    shortDescription: SimTaxToZGWBundle
-    longDescription: Deze bundle bevat de benodigde logica (schema's, mappings en code) voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom. Ten behoeve van het inrichten van belasting aangiften en bezwaren.
+    genericName: null
+    shortDescription: "Deze bundle bevat de benodigde logica voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom."
+    longDescription: "Deze bundle bevat de benodigde logica (schema's, mappings en code) voor het omzetten van Sim Form belastingen xml naar PINK Open Belastingen API en andersom. Ten behoeve van het inrichten van belasting aangiften en bezwaren."
     documentation: null
     apiDocumentation: null
-    features: []
+    features:
+      - Common Ground Gateway Plugin
     screenshots: []
     videos: []
     awards: []
@@ -79,9 +81,14 @@ dependsOn:
       versionMax: 1.3
       version: 1.2.47
       optional: false
+    - name: OpenBelastingBundle
+      versionMin: 0.1
+      version: 0.1.12
+      optional: false
 roadmap: null
 inputTypes:
   - application/json
+  - application/xml
 outputTypes:
   - application/json
   - application/json+hal
