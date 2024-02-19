@@ -23,6 +23,7 @@ use App\Event\ActionEvent;
 use DateTime;
 use DateInterval;
 use CommonGateway\OpenBelastingBundle\Service\SyncAanslagenService;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class SimTaxService
 {
@@ -105,6 +106,8 @@ class SimTaxService
         "Aanslagbiljet"   => "https://openbelasting.nl/schemas/openblasting.aanslagbiljet.schema.json",
         "BezwaarAanvraag" => "https://openbelasting.nl/schemas/openblasting.bezwaaraanvraag.schema.json",
     ];
+    
+    private Stopwatch $stopwatch;
 
 
     /**
@@ -125,7 +128,8 @@ class SimTaxService
         EntityManagerInterface $entityManager,
         SyncAanslagenService $syncAanslagenService,
         EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $pluginLogger
+        LoggerInterface $pluginLogger,
+        Stopwatch $stopwatch
     ) {
         $this->resourceService        = $resourceService;
         $this->cacheService           = $cacheService;
@@ -135,6 +139,7 @@ class SimTaxService
         $this->syncAanslagenService   = $syncAanslagenService;
         $this->logger                 = $pluginLogger;
         $this->eventDispatcher        = $eventDispatcher;
+        $this->stopwatch = $stopwatch;
 
         $this->configuration = [];
         $this->data          = [];
@@ -152,6 +157,8 @@ class SimTaxService
      */
     public function simTaxHandler(array $data, array $configuration): array
     {
+        $this->stopwatch->start('simTaxHandler', 'sim-tax-to-zgw-bundle');
+        
         $this->data          = $data;
         $this->configuration = $configuration;
 
@@ -184,6 +191,8 @@ class SimTaxService
             $this->logger->warning('Unknown berichtsoort & entiteittype combination, returning bad request error');
             $response = $this->createResponse(['Error' => 'Unknown berichtsoort & entiteittype combination'], 400);
         }
+        
+        $this->stopwatch->stop('simTaxHandler');
 
         return ['response' => $response];
 
@@ -199,6 +208,8 @@ class SimTaxService
      */
     public function getAanslagen(array $vraagBericht): Response
     {
+        $this->stopwatch->start('getAanslagen', 'sim-tax-to-zgw-bundle');
+        
         $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['GetAanslagen'], $this::PLUGIN_NAME);
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslagen']}."], 501);
@@ -246,10 +257,16 @@ class SimTaxService
         }
 
         $aanslagen['vraagbericht'] = $vraagBericht;
-
+        
+        $this->stopwatch->start('getAanslagen-mapping', 'sim-tax-to-zgw-bundle');
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
+        $this->stopwatch->stop('getAanslagen-mapping');
+        
+        $response = $this->createResponse($responseContext, 200);
+        
+        $this->stopwatch->stop('getAanslagen');
 
-        return $this->createResponse($responseContext, 200);
+        return $response;
 
     }//end getAanslagen()
 
@@ -355,6 +372,8 @@ class SimTaxService
      */
     public function getAanslag(array $vraagBericht): Response
     {
+        $this->stopwatch->start('getAanslag', 'sim-tax-to-zgw-bundle');
+        
         $mapping = $this->resourceService->getMapping($this::MAPPING_REFS['GetAanslag'], $this::PLUGIN_NAME);
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslag']}."], 501);
@@ -381,7 +400,11 @@ class SimTaxService
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
 
-        return $this->createResponse($responseContext, 200);
+        $response = $this->createResponse($responseContext, 200);
+        
+        $this->stopwatch->stop('getAanslag');
+        
+        return $response;
 
     }//end getAanslag()
 
@@ -772,13 +795,19 @@ class SimTaxService
      */
     public function createResponse(array $content, int $status): Response
     {
+        $this->stopwatch->start('createResponse', 'sim-tax-to-zgw-bundle');
+        
         $this->logger->debug('Creating XML response');
         $xmlEncoder                = new XmlEncoder(['xml_root_node_name' => 'soapenv:Envelope']);
         $content['@xmlns:soapenv'] = 'http://schemas.xmlsoap.org/soap/envelope/';
         $contentString             = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
         $contentString             = $this->replaceCdata($contentString);
 
-        return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
+        $response = new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
+        
+        $this->stopwatch->stop('createResponse');
+        
+        return $response;
 
     }//end createResponse()
 
