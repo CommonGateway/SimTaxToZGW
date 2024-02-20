@@ -832,7 +832,7 @@ class SimTaxService
         $content['@xmlns:soapenv'] = 'http://schemas.xmlsoap.org/soap/envelope/';
         $contentString             = $xmlEncoder->encode($content, 'xml', ['xml_encoding' => 'utf-8', 'remove_empty_tags' => true]);
         $contentString             = $this->replaceCdata($contentString);
-        
+
         return new Response($contentString, $status, ['Content-Type' => 'application/soap+xml']);
 
     }//end createResponse()
