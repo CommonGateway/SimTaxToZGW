@@ -285,7 +285,7 @@ class SimTaxService
      *
      * @return array The filters we need to call cacheService->searchObjects with.
      */
-    private function getAanslagenFilter(array &$vraagBericht): array
+    private function getAanslagenFilter(array $vraagBericht): array
     {
         $minYear = $maxYear = null;
         
