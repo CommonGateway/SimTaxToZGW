@@ -255,10 +255,8 @@ class SimTaxService
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
-
-        $response = $this->createResponse($responseContext, 200);
-
-        return $response;
+        
+        return $this->createResponse($responseContext, 200);
 
     }//end getAanslagen()
 
@@ -433,10 +431,8 @@ class SimTaxService
         $aanslagen['vraagbericht'] = $vraagBericht;
 
         $responseContext = $this->mappingService->mapping($mapping, $aanslagen);
-
-        $response = $this->createResponse($responseContext, 200);
-
-        return $response;
+        
+        return $this->createResponse($responseContext, 200);
 
     }//end getAanslag()
 
