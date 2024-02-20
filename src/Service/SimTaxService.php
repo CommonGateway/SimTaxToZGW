@@ -288,16 +288,16 @@ class SimTaxService
     private function getAanslagenFilter(array $vraagBericht): array
     {
         $minYear = $maxYear = null;
-        
+
         // Make sure ['ns2:body']['ns2:BLJ'] is always an array of items
         if (isset($vraagBericht['ns2:body']['ns2:BLJ'][1]) === false) {
             $BLJ = $vraagBericht['ns2:body']['ns2:BLJ'];
             unset($vraagBericht['ns2:body']['ns2:BLJ']);
-            
+
             $vraagBericht['ns2:body']['ns2:BLJ'][] = $BLJ;
             $vraagBericht['ns2:body']['ns2:BLJ'][] = [];
         }
-        
+
         foreach ($vraagBericht['ns2:body']['ns2:BLJ'] as $key => $blj) {
             if (isset($blj['ns2:BLJPRS']['ns2:PRS']['ns2:bsn-nummer']) === false) {
                 continue;
@@ -402,32 +402,31 @@ class SimTaxService
         if ($mapping === null) {
             return $this->createResponse(['Error' => "No mapping found for {$this::MAPPING_REFS['GetAanslag']}."], 501);
         }
-        
+
         // (new) Get correct filters for getting all aanslagen
         $filter = $this->getAanslagenFilter($vraagBericht);
-        
+
         // Old gateway filter
-//        if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
+        // if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
         if (isset($filter['bsn']) === false) {
             // (new) We need to check if filter contains bsn
             return $this->createResponse(['Error' => "No bsn given."], 400);
         }
-        
+
         // (new) get all aanslagen from source instead of syncing
         $aanslagenFromSource = $this->syncAanslagenService->fetchAndSyncAanslagen($filter['bsn'], $filter['belastingjaar-vanaf']);
 
-//        $filter = [];
+        // $filter = [];
         if (isset($vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetNummer']) === true || isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']) === true) {
-            $filter['aanslagbiljetnummer'] = $vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetNummer'] ?? $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer'];
+            $filter['aanslagbiljetnummer'] = ($vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetNummer'] ?? $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetNummer']);
         }
 
         if (isset($vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetVolgNummer']) === true || isset($vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']) === true) {
-            $filter['aanslagbiljetvolgnummer'] = $vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetVolgNummer'] ?? $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer'];
+            $filter['aanslagbiljetvolgnummer'] = ($vraagBericht['ns2:body']['ns2:OPO']['ns2:aanslagBiljetVolgNummer'] ?? $vraagBericht['ns2:body']['ns2:OPO'][0]['ns2:aanslagBiljetVolgNummer']);
         }
 
         // Old way of finding a single Aanslag object in the gateway
-//        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
-        
+        // $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
         // (new) way of finding a single Aanslag object with aanslagbiljetnummer & aanslagbiljetvolgnummer filters
         $aanslagen['count'] = 0;
         foreach ($aanslagenFromSource as $aanslag) {
@@ -435,17 +434,17 @@ class SimTaxService
                 && $filter['aanslagbiljetnummer'] === $aanslag['aanslagbiljetnummer']
                 && isset($filter['aanslagbiljetvolgnummer']) === true
                 && $filter['aanslagbiljetvolgnummer'] === $aanslag['aanslagbiljetvolgnummer']
-            ){
+            ) {
                 $aanslagen['results'][] = $aanslag;
-                $aanslagen['count'] = $aanslagen['count'] + 1;
+                $aanslagen['count']     = ($aanslagen['count'] + 1);
             }
         }
-        
+
         if ($aanslagen['count'] > 1) {
             $this->logger->warning('Found more than 1 aanslag with these filters: ', $filter);
             return $this->createResponse(['Error' => 'Found more than 1 aanslag with these filters', 'Filters' => $filter], 500);
         } else if ($aanslagen['count'] === 1) {
-            $aanslagen['result'] = $aanslagen['results'][0] ?? $aanslagen['results'];
+            $aanslagen['result'] = ($aanslagen['results'][0] ?? $aanslagen['results']);
         }
 
         $aanslagen['vraagbericht'] = $vraagBericht;
