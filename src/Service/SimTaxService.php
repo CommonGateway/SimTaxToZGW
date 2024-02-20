@@ -227,28 +227,37 @@ class SimTaxService
         }
 
         $filter = $this->getAanslagenFilter($vraagBericht);
-
-        if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
+        
+        // Old gateway filter
+//        if (isset($filter['embedded.belastingplichtige.burgerservicenummer']) === false) {
+        if (isset($filter['bsn']) === false) {
             return $this->createResponse(['Error' => "No bsn given."], 501);
         }
 
-        // Sync aanslagen from openbelasting api with given bsn.
-        $this->syncAanslagenService->fetchAndSyncAanslagen($filter['embedded.belastingplichtige.burgerservicenummer']);
+        // Sync aanslagen from openbelasting api with given bsn. (The old way didn't use the return value of this function)
+        $aanslagen['results'] = $this->syncAanslagenService->fetchAndSyncAanslagen($filter['bsn'], $filter['belastingjaar-vanaf']);
+        // Old filter
+//        $this->syncAanslagenService->fetchAndSyncAanslagen($filter['embedded.belastingplichtige.burgerservicenummer']);
 
         // Make sure we order correctly
-        $filter['_order']['belastingJaar'] = 'desc';
+        // Old gateway filter
+//        $filter['_order']['belastingJaar'] = 'desc';
 
+        // Old way of getting aanslagen from the gateway itself
         // Then fetch synced aanslagen through cacheService.
-        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
+//        $aanslagen = $this->cacheService->searchObjects(null, $filter, [$this::SCHEMA_REFS['Aanslagbiljet']]);
 
         // TODO: this is a temporary workaround at the request of SIM
         // This will set the Aanslag "bezwaarMogelijk" to false if one of it's "aanslagregels" has "bezwaarMogelijk" set to false.
         foreach ($aanslagen['results'] as $aanslag) {
-            if (isset($aanslag['embedded']['aanslagregels']) === false) {
+            // Old gateway/not proxy version with embedded
+//            if (isset($aanslag['embedded']['aanslagregels']) === false) {
+            if (isset($aanslag['aanslagregels']) === false) {
                 continue;
             }
-
-            foreach ($aanslag['embedded']['aanslagregels'] as $aanslagregel) {
+            // Old gateway/not proxy version with embedded
+//            foreach ($aanslag['embedded']['aanslagregels'] as $aanslagregel) {
+            foreach ($aanslag['aanslagregels'] as $aanslagregel) {
                 if ($aanslagregel['bezwaarMogelijk'] == false) {
                     $aanslag['bezwaarMogelijk'] = false;
                     break;
@@ -299,30 +308,38 @@ class SimTaxService
                     $minYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
                 }
 
+                // Old gateway filter
                 // Last key should be the max year
-                if ($key === array_key_last($vraagBericht['ns2:body']['ns2:BLJ'])) {
-                    $maxYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
-                }
+//                if ($key === array_key_last($vraagBericht['ns2:body']['ns2:BLJ'])) {
+//                    $maxYear = $blj['ns2:extraElementen']['ns1:extraElement']['#'];
+//                }
             }
         }//end foreach
 
         if (isset($minYear) === true) {
-            $filter = $this->getMinMaxYearFilter($vraagBericht, $minYear, $maxYear);
+            $filter['belastingjaar-vanaf'] = $minYear;
+            // Old gateway filter
+//            $filter = $this->getMinMaxYearFilter($vraagBericht, $minYear, $maxYear);
         } else {
-            $this->logger->warning('Could not find a minimal year for bsn: '.($bsn ?? '').' Using current & last year instead for getting Aanslagen');
+            // Old warning log
+//            $this->logger->warning('Could not find a minimal year for bsn: '.($bsn ?? '').' Using current & last year instead for getting Aanslagen');
             $filter = [];
         }
 
+        // Old gateway filter, for now default value will be set in the OpenBelastingBundle
         // If we have no (min/max) belastingJaar filter in the request use this year and the last year for filtering instead.
-        if (isset($filter['belastingJaar']) === false) {
-            $dateTime                  = new DateTime();
-            $filter['belastingJaar'][] = $dateTime->format('Y');
-            $dateTime->add(DateInterval::createFromDateString('-1 year'));
-            $filter['belastingJaar'][] = $dateTime->format('Y');
-        }
-
+//        if (isset($filter['belastingJaar']) === false) {
+//            $dateTime                  = new DateTime();
+//            $filter['belastingJaar'][] = $dateTime->format('Y');
+//            $dateTime->add(DateInterval::createFromDateString('-1 year'));
+//            $filter['belastingJaar'][] = $dateTime->format('Y');
+//        }
+        
         if (isset($bsn)) {
-            $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
+            $filter['bsn'] = $bsn;
+            
+            // Old gateway filter
+//            $filter['embedded.belastingplichtige.burgerservicenummer'] = $bsn;
         }
 
         return $filter;
