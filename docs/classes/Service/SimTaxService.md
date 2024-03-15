@@ -1,36 +1,23 @@
-# CommonGateway\SimTaxToZGWBundle\Service\SimTaxService  
-
-
-
-
-
-
+# CommonGateway\SimTaxToZGWBundle\Service\SimTaxService
 
 ## Methods
 
 | Name | Description |
 |------|-------------|
-|[__construct](#simtaxservice__construct)||
+|[\_\_construct](#simtaxservice__construct)||
 |[createBezwaar](#simtaxservicecreatebezwaar)|Create a bezwaar object based on the input.|
 |[createResponse](#simtaxservicecreateresponse)|Creates a response based on content.|
 |[getAanslag](#simtaxservicegetaanslag)|Get a single aanslag object based on the input.|
 |[getAanslagen](#simtaxservicegetaanslagen)|Get aanslagen objects based on the input.|
 |[simTaxHandler](#simtaxservicesimtaxhandler)|An example handler that is triggered by an action.|
 
-
-
-
-### SimTaxService::__construct  
+### SimTaxService::\_\_construct
 
 **Description**
 
 ```php
  __construct (void)
 ```
-
- 
-
- 
 
 **Parameters**
 
@@ -40,11 +27,9 @@
 
 `void`
 
-
 <hr />
 
-
-### SimTaxService::createBezwaar  
+### SimTaxService::createBezwaar
 
 **Description**
 
@@ -52,26 +37,20 @@
 public createBezwaar (array $kennisgevingsBericht)
 ```
 
-Create a bezwaar object based on the input. 
-
- 
+Create a bezwaar object based on the input.
 
 **Parameters**
 
 * `(array) $kennisgevingsBericht`
-: The kennisgevingsBericht content from the body of the current request.  
+  : The kennisgevingsBericht content from the body of the current request.
 
 **Return Values**
 
 `\Response`
 
-
-
-
 <hr />
 
-
-### SimTaxService::createResponse  
+### SimTaxService::createResponse
 
 **Description**
 
@@ -79,28 +58,22 @@ Create a bezwaar object based on the input.
 public createResponse (array $content, int $status)
 ```
 
-Creates a response based on content. 
-
- 
+Creates a response based on content.
 
 **Parameters**
 
 * `(array) $content`
-: The content to incorporate in the response  
+  : The content to incorporate in the response
 * `(int) $status`
-: The status code of the response  
+  : The status code of the response
 
 **Return Values**
 
 `\Response`
 
-
-
-
 <hr />
 
-
-### SimTaxService::getAanslag  
+### SimTaxService::getAanslag
 
 **Description**
 
@@ -108,26 +81,20 @@ Creates a response based on content.
 public getAanslag (array $vraagBericht)
 ```
 
-Get a single aanslag object based on the input. 
-
- 
+Get a single aanslag object based on the input.
 
 **Parameters**
 
 * `(array) $vraagBericht`
-: The vraagBericht content from the body of the current request.  
+  : The vraagBericht content from the body of the current request.
 
 **Return Values**
 
 `\Response`
 
-
-
-
 <hr />
 
-
-### SimTaxService::getAanslagen  
+### SimTaxService::getAanslagen
 
 **Description**
 
@@ -135,26 +102,20 @@ Get a single aanslag object based on the input.
 public getAanslagen (array $vraagBericht)
 ```
 
-Get aanslagen objects based on the input. 
-
- 
+Get aanslagen objects based on the input.
 
 **Parameters**
 
 * `(array) $vraagBericht`
-: The vraagBericht content from the body of the current request.  
+  : The vraagBericht content from the body of the current request.
 
 **Return Values**
 
 `\Response`
 
-
-
-
 <hr />
 
-
-### SimTaxService::simTaxHandler  
+### SimTaxService::simTaxHandler
 
 **Description**
 
@@ -162,16 +123,14 @@ Get aanslagen objects based on the input.
 public simTaxHandler (array $data, array $configuration)
 ```
 
-An example handler that is triggered by an action. 
-
- 
+An example handler that is triggered by an action.
 
 **Parameters**
 
 * `(array) $data`
-: The data array  
+  : The data array
 * `(array) $configuration`
-: The configuration array  
+  : The configuration array
 
 **Return Values**
 
@@ -179,6 +138,4 @@ An example handler that is triggered by an action.
 
 > A handler must ALWAYS return an array
 
-
 <hr />
-
